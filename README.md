@@ -1,5 +1,9 @@
 # pyNMMS
 
+[![PyPI](https://img.shields.io/pypi/v/pyNMMS)](https://pypi.org/project/pyNMMS/)
+[![Python](https://img.shields.io/pypi/pyversions/pyNMMS)](https://pypi.org/project/pyNMMS/)
+[![License](https://img.shields.io/pypi/l/pyNMMS)](https://github.com/bradleypallen/nmms-reasoner/blob/main/LICENSE)
+
 Non-Monotonic Multi-Succedent sequent calculus — propositional NMMS from Hlobil & Brandom 2025, Ch. 3.
 
 ## Installation
@@ -11,7 +15,7 @@ pip install pyNMMS
 For development:
 
 ```bash
-git clone https://github.com/bradleyallen/nmms-reasoner.git
+git clone https://github.com/bradleypallen/nmms-reasoner.git
 cd nmms-reasoner
 pip install -e ".[dev]"
 ```
