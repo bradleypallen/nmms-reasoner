@@ -28,6 +28,7 @@ classifiers = [
 dev = [
     "pytest>=8.0",
     "pytest-cov",
+    "hypothesis>=6.0",
     "ruff",
     "mypy",
 ]
