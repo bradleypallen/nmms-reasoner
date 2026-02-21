@@ -4,7 +4,6 @@ Corresponds to Demo 1 from nmms_acl_reasoner.py (lines 1064-1078).
 """
 
 
-
 class TestAxioms:
     """Basic axiom derivability from the toy base."""
 

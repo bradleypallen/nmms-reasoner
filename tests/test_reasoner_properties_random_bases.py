@@ -1,16 +1,10 @@
-"""
-Property-based tests for pyNMMS using Hypothesis.
+"""Property-based tests for pyNMMS using Hypothesis.
 
 Tests the structural properties of the NMMS sequent calculus
 (Hlobil & Brandom 2025, Ch. 3) against randomly generated
 material bases and sequents.
-
-Usage:
-    pytest test_pynmms_properties.py -v
-    pytest test_pynmms_properties.py -v --hypothesis-seed=0  # reproducible
 """
 
-import pytest
 from hypothesis import assume, given, note, settings
 from hypothesis import strategies as st
 
@@ -620,11 +614,3 @@ def test_serialization_roundtrip(data):
             f"Derivability changed after roundtrip for "
             f"{sorted(gamma)} => {sorted(delta)}"
         )
-
-
-# ============================================================
-# Run with pytest
-# ============================================================
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v", "--tb=short"])
