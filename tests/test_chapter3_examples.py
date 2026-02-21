@@ -9,7 +9,6 @@ import pytest
 
 from pynmms import MaterialBase, NMMSReasoner
 
-
 # ============================================================
 # Fixture: Toy Base T (p. 118 of Ch. 3)
 # ============================================================
