@@ -1,63 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://bradleyallen.github.io/nmms-reasoner/</loc>
+         <loc>https://bradleypallen.github.io/pyNMMS/</loc>
          <lastmod>2026-02-22</lastmod>
     </url>
     <url>
-         <loc>https://bradleyallen.github.io/nmms-reasoner/getting-started/</loc>
+         <loc>https://bradleypallen.github.io/pyNMMS/getting-started/</loc>
          <lastmod>2026-02-22</lastmod>
     </url>
     <url>
-         <loc>https://bradleyallen.github.io/nmms-reasoner/api/base/</loc>
+         <loc>https://bradleypallen.github.io/pyNMMS/api/base/</loc>
          <lastmod>2026-02-22</lastmod>
     </url>
     <url>
-         <loc>https://bradleyallen.github.io/nmms-reasoner/api/reasoner/</loc>
+         <loc>https://bradleypallen.github.io/pyNMMS/api/reasoner/</loc>
          <lastmod>2026-02-22</lastmod>
     </url>
     <url>
-         <loc>https://bradleyallen.github.io/nmms-reasoner/api/rq-base/</loc>
+         <loc>https://bradleypallen.github.io/pyNMMS/api/rq-base/</loc>
          <lastmod>2026-02-22</lastmod>
     </url>
     <url>
-         <loc>https://bradleyallen.github.io/nmms-reasoner/api/rq-reasoner/</loc>
+         <loc>https://bradleypallen.github.io/pyNMMS/api/rq-reasoner/</loc>
          <lastmod>2026-02-22</lastmod>
     </url>
     <url>
-         <loc>https://bradleyallen.github.io/nmms-reasoner/api/rq-syntax/</loc>
+         <loc>https://bradleypallen.github.io/pyNMMS/api/rq-syntax/</loc>
          <lastmod>2026-02-22</lastmod>
     </url>
     <url>
-         <loc>https://bradleyallen.github.io/nmms-reasoner/api/syntax/</loc>
+         <loc>https://bradleypallen.github.io/pyNMMS/api/syntax/</loc>
          <lastmod>2026-02-22</lastmod>
     </url>
     <url>
-         <loc>https://bradleyallen.github.io/nmms-reasoner/theory/nmms-calculus/</loc>
+         <loc>https://bradleypallen.github.io/pyNMMS/theory/nmms-calculus/</loc>
          <lastmod>2026-02-22</lastmod>
     </url>
     <url>
-         <loc>https://bradleyallen.github.io/nmms-reasoner/theory/rq-extension/</loc>
+         <loc>https://bradleypallen.github.io/pyNMMS/theory/rq-extension/</loc>
          <lastmod>2026-02-22</lastmod>
     </url>
     <url>
-         <loc>https://bradleyallen.github.io/nmms-reasoner/tutorial/cli-usage/</loc>
+         <loc>https://bradleypallen.github.io/pyNMMS/tutorial/cli-usage/</loc>
          <lastmod>2026-02-22</lastmod>
     </url>
     <url>
-         <loc>https://bradleyallen.github.io/nmms-reasoner/tutorial/concepts/</loc>
+         <loc>https://bradleypallen.github.io/pyNMMS/tutorial/concepts/</loc>
          <lastmod>2026-02-22</lastmod>
     </url>
     <url>
-         <loc>https://bradleyallen.github.io/nmms-reasoner/tutorial/material-bases/</loc>
+         <loc>https://bradleypallen.github.io/pyNMMS/tutorial/material-bases/</loc>
          <lastmod>2026-02-22</lastmod>
     </url>
     <url>
-         <loc>https://bradleyallen.github.io/nmms-reasoner/tutorial/proof-search/</loc>
+         <loc>https://bradleypallen.github.io/pyNMMS/tutorial/proof-search/</loc>
          <lastmod>2026-02-22</lastmod>
     </url>
     <url>
-         <loc>https://bradleyallen.github.io/nmms-reasoner/tutorial/rq-tutorial/</loc>
+         <loc>https://bradleypallen.github.io/pyNMMS/tutorial/rq-tutorial/</loc>
          <lastmod>2026-02-22</lastmod>
     </url>
 </urlset>
