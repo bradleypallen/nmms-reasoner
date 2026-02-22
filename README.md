@@ -75,7 +75,7 @@ pynmms repl -b base.json
 
 ## Restricted Quantifiers (Experimental)
 
-The `pynmms.rq` subpackage is an experimental extension of propositional NMMS with ALC-style restricted quantifiers, avoiding the problems with unrestricted quantifiers in nonmonotonic settings (Hlobil 2025).
+The `pynmms.rq` subpackage is an experimental extension of propositional NMMS with ALC-style restricted quantifiers, avoiding issues Hlobil identifies with unrestricted quantification in nonmonotonic settings.
 
 ```python
 from pynmms.rq import RQMaterialBase, NMMSRQReasoner

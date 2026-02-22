@@ -1,8 +1,8 @@
 """pyNMMS Restricted Quantifier extension.
 
 Extends propositional NMMS with ALC-style restricted quantifiers
-(ALL R.C, SOME R.C) following Hlobil (2025), "First-Order Implication-Space
-Semantics."
+(ALL R.C, SOME R.C), avoiding issues Hlobil identifies with unrestricted
+quantification in nonmonotonic settings.
 
 Public API::
 

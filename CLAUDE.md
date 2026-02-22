@@ -19,7 +19,7 @@ pynmms tell -b base.json --create "A |~ B"
 pynmms ask -b base.json "A => B"
 pynmms repl
 
-# CLI with restricted quantifiers
+# CLI with restricted quantifiers (experimental)
 pynmms tell -b rq_base.json --create --rq "atom hasChild(alice,bob)"
 pynmms ask -b rq_base.json --rq "ALL hasChild.Doctor(alice), hasChild(alice,bob) => ParentOfDoctor(alice)"
 pynmms repl --rq
@@ -29,7 +29,7 @@ Uses Python 3.10+ standard library only (no runtime dependencies). Dev dependenc
 
 ## Theoretical Foundation
 
-This implements the NMMS sequent calculus from Hlobil & Brandom 2025 (Ch. 3, "Introducing Logical Vocabulary"). The `pynmms` package implements propositional NMMS in the core and **restricted quantifiers** (`ALL R.C`, `SOME R.C`) in the `pynmms.rq` subpackage.
+This implements the NMMS sequent calculus from Hlobil & Brandom 2025 (Ch. 3, "Introducing Logical Vocabulary"). The `pynmms` package implements propositional NMMS in the core and **experimental restricted quantifiers** (`ALL R.C`, `SOME R.C`) in the `pynmms.rq` subpackage.
 
 ### The NMMS Framework
 
@@ -73,9 +73,9 @@ These biconditionals are what make logical vocabulary "make explicit" reason rel
    - `pynmms ask` — query derivability with optional trace
    - `pynmms repl` — interactive session with tell/ask/show/save/load
 
-### Restricted Quantifiers (`src/pynmms/rq/`)
+### Restricted Quantifiers — Experimental (`src/pynmms/rq/`)
 
-The `pynmms.rq` subpackage extends propositional NMMS with ALC-style restricted quantifiers (`ALL R.C`, `SOME R.C`), avoiding the problems Hlobil (2025) identifies with unrestricted ∀/∃ in nonmonotonic settings.
+The `pynmms.rq` subpackage is an experimental extension of propositional NMMS with ALC-style restricted quantifiers (`ALL R.C`, `SOME R.C`), avoiding issues Hlobil identifies with unrestricted ∀/∃ in nonmonotonic settings.
 
 1. **`rq/syntax.py`** — `RQSentence` frozen dataclass (types: `ATOM_CONCEPT`, `ATOM_ROLE`, `ALL_RESTRICT`, `SOME_RESTRICT`). `parse_rq_sentence()` tries binary connectives first, then RQ patterns, then falls through to propositional atoms. Helpers: `find_role_triggers`, `collect_individuals`, `fresh_individual`, `concept_label`, `find_blocking_individual`.
 
@@ -111,7 +111,7 @@ The `pynmms.rq` subpackage extends propositional NMMS with ALC-style restricted 
 - `test_cli.py` — CLI integration tests
 - `test_logging.py` — proof trace and logging output
 
-**Restricted quantifiers (281 tests, 8 files):**
+**Restricted quantifiers — experimental (281 tests, 8 files):**
 - `test_rq_syntax.py` — RQ sentence parsing, helpers, atomicity checks
 - `test_rq_base.py` — RQMaterialBase construction, validation, schemas, CommitmentStore
 - `test_rq_reasoner_rules.py` — individual rule correctness for all 4 quantifier rules + propositional backward compat

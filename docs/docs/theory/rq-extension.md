@@ -1,6 +1,6 @@
 # Restricted Quantifier Extension
 
-The `pynmms.rq` subpackage extends propositional NMMS with ALC-style restricted quantifiers (`ALL R.C`, `SOME R.C`), following the semantic framework of Hlobil (2025), "First-Order Implication-Space Semantics."
+The `pynmms.rq` subpackage extends propositional NMMS with ALC-style restricted quantifiers (`ALL R.C`, `SOME R.C`), avoiding issues Hlobil identifies with unrestricted quantification in nonmonotonic settings.
 
 ## Motivation
 
@@ -51,7 +51,7 @@ ALL hasChild.Happy(alice) & ALL hasChild.Smart(alice)
                           Γ, S ⇒ Δ
 ```
 
-**Ketonen pattern**: All `2^k - 1` nonempty subsets of triggered instances must independently prove the conclusion. This is the restricted analogue of Hlobil's power-symjunction for generalized disjunction.
+**Ketonen pattern**: All `2^k - 1` nonempty subsets of triggered instances must independently prove the conclusion. This is the restricted analogue of power-symjunction for generalized disjunction.
 
 For binary `L∨` with `{A, B}`, this gives the familiar three top sequents: `{A}`, `{B}`, `{A,B}`. For `n` triggers, we need all `2^n - 1` nonempty subsets.
 
@@ -78,7 +78,7 @@ Two strategies:
 
 ### OQ-1: Adjunction vs. Power-Symjunction for [L∀R.C]
 
-Hlobil's semantic clause for `∀` uses **power-symjunction** (Def. 16), not adjunction. The current implementation uses **adjunction** (option A): one subgoal adding all triggered instances simultaneously.
+The semantic clause for `∀` uses **power-symjunction**, not adjunction. The current implementation uses **adjunction** (option A): one subgoal adding all triggered instances simultaneously.
 
 Arguments for adjunction:
 
@@ -124,5 +124,4 @@ Quantified commitments are stored as **schemas** and evaluated lazily during `is
 
 ## References
 
-- Hlobil (2025), "First-Order Implication-Space Semantics," §2 (Inf-5/6/7/8) and §3 (power-symjunction, Proposition 20)
 - Hlobil & Brandom (2025), Ch. 3, "Introducing Logical Vocabulary"
