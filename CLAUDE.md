@@ -86,13 +86,16 @@ The original single-file implementation with ALC-style restricted quantifiers (A
 
 ## Test Suite
 
-134 tests across 8 test files (94% code coverage):
+273 tests across 12 test files:
 - `test_syntax.py` — parser unit tests
 - `test_base.py` — MaterialBase construction, validation, axiom checks, serialization
 - `test_reasoner_axioms.py` — axiom-level derivability (Demo 1 equivalence)
 - `test_reasoner_rules.py` — individual rule correctness
 - `test_reasoner_properties.py` — nontransitivity, nonmonotonicity, supraclassicality, DD/II/AA/SS
+- `test_reasoner_properties_random_bases.py` — Hypothesis property-based tests against random bases
 - `test_reasoner_soundness.py` — containment-leak soundness audit (Demo 9 equivalence)
+- `test_chapter3_examples.py` — every worked example from Ch. 3
+- `test_cross_validation_role.py` — cross-validation against ROLE.jl ground truth
 - `test_cli.py` — CLI integration tests
 - `test_logging.py` — proof trace and logging output
 
