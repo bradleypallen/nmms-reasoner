@@ -1,6 +1,6 @@
 site_name: pyNMMS
 site_description: An automated reasoner for the Non-Monotonic Multi-Succedent (NMMS) propositional sequent calculus
-site_url: https://bradleyallen.github.io/nmms-reasoner/
+site_url: https://bradleypallen.github.io/pyNMMS/
 
 theme:
   name: material

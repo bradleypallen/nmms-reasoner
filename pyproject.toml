@@ -41,8 +41,8 @@ docs = [
 pynmms = "pynmms.cli.main:main"
 
 [project.urls]
-Homepage = "https://github.com/bradleypallen/nmms-reasoner"
-Repository = "https://github.com/bradleypallen/nmms-reasoner"
+Homepage = "https://github.com/bradleypallen/pyNMMS"
+Repository = "https://github.com/bradleypallen/pyNMMS"
 
 [tool.hatch.version]
 path = "src/pynmms/_version.py"

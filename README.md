@@ -2,13 +2,13 @@
 
 [![PyPI](https://img.shields.io/pypi/v/pyNMMS)](https://pypi.org/project/pyNMMS/)
 [![Python](https://img.shields.io/pypi/pyversions/pyNMMS)](https://pypi.org/project/pyNMMS/)
-[![License](https://img.shields.io/pypi/l/pyNMMS)](https://github.com/bradleypallen/nmms-reasoner/blob/main/LICENSE)
-[![CI](https://github.com/bradleypallen/nmms-reasoner/actions/workflows/ci.yml/badge.svg)](https://github.com/bradleypallen/nmms-reasoner/actions/workflows/ci.yml)
-[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://bradleypallen.github.io/nmms-reasoner/)
+[![License](https://img.shields.io/pypi/l/pyNMMS)](https://github.com/bradleypallen/pyNMMS/blob/main/LICENSE)
+[![CI](https://github.com/bradleypallen/pyNMMS/actions/workflows/ci.yml/badge.svg)](https://github.com/bradleypallen/pyNMMS/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://bradleypallen.github.io/pyNMMS/)
 
 An automated reasoner for the Non-Monotonic Multi-Succedent (NMMS) sequent calculus from Hlobil & Brandom 2025, Ch. 3.
 
-**[Documentation](https://bradleypallen.github.io/nmms-reasoner/)** | **[PyPI](https://pypi.org/project/pyNMMS/)** | **[GitHub](https://github.com/bradleypallen/nmms-reasoner)**
+**[Documentation](https://bradleypallen.github.io/pyNMMS/)** | **[PyPI](https://pypi.org/project/pyNMMS/)** | **[GitHub](https://github.com/bradleypallen/pyNMMS)**
 
 ## Installation
 
@@ -19,8 +19,8 @@ pip install pyNMMS
 For development:
 
 ```bash
-git clone https://github.com/bradleypallen/nmms-reasoner.git
-cd nmms-reasoner
+git clone https://github.com/bradleypallen/pyNMMS.git
+cd pyNMMS
 pip install -e ".[dev]"
 ```
 

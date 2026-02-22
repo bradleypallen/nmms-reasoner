@@ -9,8 +9,8 @@ pip install pyNMMS
 For development:
 
 ```bash
-git clone https://github.com/bradleyallen/nmms-reasoner.git
-cd nmms-reasoner
+git clone https://github.com/bradleypallen/pyNMMS.git
+cd pyNMMS
 pip install -e ".[dev]"
 ```
 
