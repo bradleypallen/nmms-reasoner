@@ -1239,7 +1239,7 @@
 
 
 <h1 id="restricted-quantifier-extension">Restricted Quantifier Extension<a class="headerlink" href="#restricted-quantifier-extension" title="Permanent link">&para;</a></h1>
-<p>The <code>pynmms.rq</code> subpackage extends propositional NMMS with ALC-style restricted quantifiers (<code>ALL R.C</code>, <code>SOME R.C</code>), following the semantic framework of Hlobil (2025), "First-Order Implication-Space Semantics."</p>
+<p>The <code>pynmms.rq</code> subpackage extends propositional NMMS with ALC-style restricted quantifiers (<code>ALL R.C</code>, <code>SOME R.C</code>), avoiding issues Hlobil identifies with unrestricted quantification in nonmonotonic settings.</p>
 <h2 id="motivation">Motivation<a class="headerlink" href="#motivation" title="Permanent link">&para;</a></h2>
 <p>Standard unrestricted quantifier rules fail in nonmonotonic settings:</p>
 <ul>
@@ -1275,7 +1275,7 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Γ, SOME R.C(a) ⇒ Δ  ←  for all nonempty subsets S of {C(b) | R(a,b) ∈ Γ}:
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>                          Γ, S ⇒ Δ
 </code></pre></div>
-<p><strong>Ketonen pattern</strong>: All <code>2^k - 1</code> nonempty subsets of triggered instances must independently prove the conclusion. This is the restricted analogue of Hlobil's power-symjunction for generalized disjunction.</p>
+<p><strong>Ketonen pattern</strong>: All <code>2^k - 1</code> nonempty subsets of triggered instances must independently prove the conclusion. This is the restricted analogue of power-symjunction for generalized disjunction.</p>
 <p>For binary <code>L∨</code> with <code>{A, B}</code>, this gives the familiar three top sequents: <code>{A}</code>, <code>{B}</code>, <code>{A,B}</code>. For <code>n</code> triggers, we need all <code>2^n - 1</code> nonempty subsets.</p>
 <h3 id="rrc-existential-restriction-on-the-right">[R∃R.C] — Existential restriction on the right<a class="headerlink" href="#rrc-existential-restriction-on-the-right" title="Permanent link">&para;</a></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Γ ⇒ Δ, SOME R.C(a)
@@ -1291,7 +1291,7 @@
 <p><strong>How it avoids the ∀R problem</strong>: The eigenvariable represents an arbitrary role successor, not an arbitrary domain element. We only need to show <code>C(b)</code> holds for an arbitrary R-successor of <code>a</code>, not for every object in the domain.</p>
 <h2 id="design-decisions">Design Decisions<a class="headerlink" href="#design-decisions" title="Permanent link">&para;</a></h2>
 <h3 id="oq-1-adjunction-vs-power-symjunction-for-lrc">OQ-1: Adjunction vs. Power-Symjunction for [L∀R.C]<a class="headerlink" href="#oq-1-adjunction-vs-power-symjunction-for-lrc" title="Permanent link">&para;</a></h3>
-<p>Hlobil's semantic clause for <code>∀</code> uses <strong>power-symjunction</strong> (Def. 16), not adjunction. The current implementation uses <strong>adjunction</strong> (option A): one subgoal adding all triggered instances simultaneously.</p>
+<p>The semantic clause for <code>∀</code> uses <strong>power-symjunction</strong>, not adjunction. The current implementation uses <strong>adjunction</strong> (option A): one subgoal adding all triggered instances simultaneously.</p>
 <p>Arguments for adjunction:</p>
 <ol>
 <li>Matches propositional <code>[L∧]</code> pattern (1 subgoal = multiplicative)</li>
@@ -1359,7 +1359,6 @@
 </ul>
 <h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Hlobil (2025), "First-Order Implication-Space Semantics," §2 (Inf-5/6/7/8) and §3 (power-symjunction, Proposition 20)</li>
 <li>Hlobil &amp; Brandom (2025), Ch. 3, "Introducing Logical Vocabulary"</li>
 </ul>
 
