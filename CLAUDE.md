@@ -27,17 +27,18 @@ pynmms ask -b base.json --batch queries.txt          # batch queries
 echo "A => B" | pynmms ask -b base.json -    # stdin input
 pynmms repl
 
-# CLI with restricted quantifiers (experimental)
-pynmms tell -b rq_base.json --create --rq "atom hasChild(alice,bob)"
-pynmms ask -b rq_base.json --rq "ALL hasChild.Doctor(alice), hasChild(alice,bob) => ParentOfDoctor(alice)"
-pynmms repl --rq
+# CLI with RDFS extension
+pynmms tell -b rdfs_base.json --create --rdfs "atom Man(socrates)"
+pynmms tell -b rdfs_base.json --rdfs --batch schemas.txt
+pynmms ask -b rdfs_base.json --rdfs "Man(socrates) => Mortal(socrates)"
+pynmms repl --rdfs
 ```
 
 Uses Python 3.10+ standard library only (no runtime dependencies). Dev dependencies: pytest, pytest-cov, ruff, mypy.
 
 ## Theoretical Foundation
 
-This implements the NMMS sequent calculus from Hlobil & Brandom 2025 (Ch. 3, "Introducing Logical Vocabulary"). The `pynmms` package implements propositional NMMS in the core and **experimental restricted quantifiers** (`ALL R.C`, `SOME R.C`) in the `pynmms.rq` subpackage.
+This implements the NMMS sequent calculus from Hlobil & Brandom 2025 (Ch. 3, "Introducing Logical Vocabulary"). The `pynmms` package implements propositional NMMS in the core and **defeasible RDFS axiom schemas** (subClassOf, range, domain, subPropertyOf) in the `pynmms.rdfs` subpackage.
 
 ### The NMMS Framework
 
@@ -76,26 +77,27 @@ These biconditionals are what make logical vocabulary "make explicit" reason rel
 
 3. **`reasoner.py`** — `NMMSReasoner` class with backward proof search implementing 8 Ketonen-style propositional rules (L¬, L→, L∧, L∨, R¬, R→, R∧, R∨). Returns `ProofResult` with derivability, trace, depth, and cache stats.
 
-4. **`cli/`** — Tell/Ask CLI with REPL mode (`--rq` flag enables restricted quantifier mode):
+4. **`cli/`** — Tell/Ask CLI with REPL mode (`--rdfs` flag enables RDFS mode):
    - `pynmms tell` — add atoms/consequences to a JSON base file; supports annotations, empty sides, `--json`, `-q`, `--batch`, stdin (`-`)
    - `pynmms ask` — query derivability with optional trace; semantic exit codes (0=derivable, 1=error, 2=not derivable), `--json`, `-q`, `--batch`, stdin (`-`)
    - `pynmms repl` — interactive session with tell/ask/show/save/load
    - `cli/exitcodes.py` — `EXIT_SUCCESS=0`, `EXIT_ERROR=1`, `EXIT_NOT_DERIVABLE=2`
    - `cli/output.py` — JSON response builders for structured output
 
-### Restricted Quantifiers — Experimental (`src/pynmms/rq/`)
+### RDFS Extension (`src/pynmms/rdfs/`)
 
-The `pynmms.rq` subpackage is an experimental extension of propositional NMMS with ALC-style restricted quantifiers (`ALL R.C`, `SOME R.C`), avoiding issues Hlobil identifies with unrestricted ∀/∃ in nonmonotonic settings.
+The `pynmms.rdfs` subpackage extends propositional NMMS with defeasible RDFS-style axiom schemas. Instead of adding proof rules, it enriches the material base with four unanchored axiom schema types that are evaluated lazily at query time.
 
-1. **`rq/syntax.py`** — `RQSentence` frozen dataclass (types: `ATOM_CONCEPT`, `ATOM_ROLE`, `ALL_RESTRICT`, `SOME_RESTRICT`). `parse_rq_sentence()` tries binary connectives first, then RQ patterns, then falls through to propositional atoms. Helpers: `find_role_triggers`, `collect_individuals`, `fresh_individual`, `concept_label`, `find_blocking_individual`.
+1. **`rdfs/syntax.py`** — `RDFSSentence` frozen dataclass (types: `ATOM_CONCEPT`, `ATOM_ROLE`). `parse_rdfs_sentence()` tries binary connectives first, then RDFS patterns (role assertions, concept assertions). Bare propositional atoms are rejected.
 
-2. **`rq/base.py`** — `RQMaterialBase(MaterialBase)` adds vocabulary tracking (`_individuals`, `_concepts`, `_roles`), inference schemas (lazy evaluation), and Ax3 (exact-match schema axiom). `CommitmentStore` provides a higher-level API for managing assertions and schemas, compiling to an `RQMaterialBase`.
+2. **`rdfs/base.py`** — `RDFSMaterialBase(MaterialBase)` adds vocabulary tracking (`_individuals`, `_concepts`, `_roles`) and four RDFS schema types:
+   - **subClassOf(C, D)**: `{C(x)} |~ {D(x)}` for any individual x
+   - **range(R, C)**: `{R(x,y)} |~ {C(y)}` for any x, y
+   - **domain(R, C)**: `{R(x,y)} |~ {C(x)}` for any x, y
+   - **subPropertyOf(R, S)**: `{R(x,y)} |~ {S(x,y)}` for any x, y
+   All use exact match (no weakening). `CommitmentStore` provides a higher-level API.
 
-3. **`rq/reasoner.py`** — `NMMSRQReasoner(NMMSReasoner)` overrides `_try_left_rules()` and `_try_right_rules()` to handle both propositional and RQ sentence types in a single pass. Four quantifier rules:
-   - **[L∀R.C]**: Adjunction — 1 subgoal with all triggered concept instances (like [L∧])
-   - **[L∃R.C]**: Ketonen pattern — all 2^k−1 nonempty subsets of triggered instances (like [L∨])
-   - **[R∃R.C]**: Known witnesses + fresh canonical witness with concept-label blocking (experimental)
-   - **[R∀R.C]**: Eigenvariable — fresh `_e_{R}_{C}_{a}` for arbitrary role successor (like [R∧])
+   **No separate reasoner** — the base `NMMSReasoner` works transparently with `RDFSMaterialBase` because RDFS schemas extend `is_axiom()`, not the proof rules.
 
 ### Key design properties preserved by the calculus:
 - **MOF**: Nonmonotonicity — adding premises can defeat inferences (no [Weakening])
@@ -106,7 +108,7 @@ The `pynmms.rq` subpackage is an experimental extension of propositional NMMS wi
 
 ## Test Suite
 
-597 tests across 22 test files:
+452 tests across 20 test files:
 
 **Propositional core (307 tests, 13 files):**
 - `test_syntax.py` — parser unit tests
@@ -122,18 +124,15 @@ The `pynmms.rq` subpackage is an experimental extension of propositional NMMS wi
 - `test_cli_json.py` — JSON output, quiet mode, stdin, batch, exit codes, empty sides, annotations, Toy Base T integration
 - `test_logging.py` — proof trace and logging output
 
-**Restricted quantifiers — experimental (290 tests, 9 files):**
-- `test_rq_syntax.py` — RQ sentence parsing, helpers, atomicity checks
-- `test_rq_base.py` — RQMaterialBase construction, validation, schemas, CommitmentStore
-- `test_rq_reasoner_rules.py` — individual rule correctness for all 4 quantifier rules + propositional backward compat
-- `test_rq_reasoner_properties.py` — MOF, nontransitivity, SCL, DDT, II, AA, SS with quantifiers
-- `test_rq_reasoner_soundness.py` — containment-leak probes for all RQ rules
-- `test_rq_schemas.py` — concept/inference schemas, lazy evaluation, CommitmentStore integration
-- `test_rq_cli.py` — `--rq` flag with tell/ask/repl
-- `test_rq_cli_json.py` — RQ-specific tests for JSON output, exit codes, batch, annotations
-- `test_rq_legacy_equivalence.py` — RQ demo scenario equivalence (all 10 original demo scenarios)
-- `test_rq_logging.py` — RQ rule names in traces, blocking warnings
+**RDFS extension (145 tests, 7 files):**
+- `test_rdfs_syntax.py` — RDFS sentence parsing (concept/role assertions), atomicity checks
+- `test_rdfs_base.py` — RDFSMaterialBase construction, validation, RDFS schemas, CommitmentStore
+- `test_rdfs_schemas.py` — all 4 RDFS schema types, nonmonotonicity, non-transitivity, lazy evaluation, NMMSReasoner integration
+- `test_rdfs_cli.py` — `--rdfs` flag with tell/ask/repl
+- `test_rdfs_cli_json.py` — RDFS-specific tests for JSON output, exit codes, batch, annotations
+- `test_rdfs_legacy_equivalence.py` — propositional backward compat, medical concept/role, RDFS schema equivalence
+- `test_rdfs_logging.py` — RDFS schema registration logging, proof traces
 
 ## Logging
 
-All modules use `logging.getLogger(__name__)` at DEBUG level. The `NMMSReasoner` and `NMMSRQReasoner` produce proof traces both in `ProofResult.trace` and via the logging system for post-experimental run analysis and reporting. The RQ reasoner logs quantifier rule applications (e.g., `[L∀R.C]`, `[R∃R.C]`) and blocking events with `warnings.warn()` on first use.
+All modules use `logging.getLogger(__name__)` at DEBUG level. The `NMMSReasoner` produces proof traces both in `ProofResult.trace` and via the logging system for post-experimental run analysis and reporting.

@@ -1,14 +1,14 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/bradleypallen/pyNMMS/schemas/rq_base.schema.json",
-  "title": "RQ Material Base",
-  "description": "A material base for NMMS with restricted quantifiers. Extends the propositional base with individuals, concepts, roles, and inference schemas.",
+  "$id": "https://github.com/bradleypallen/pyNMMS/schemas/rdfs_base.schema.json",
+  "title": "RDFS Material Base",
+  "description": "A material base for NMMS with defeasible RDFS axiom schemas. Extends the propositional base with individuals, concepts, roles, and four RDFS schema types.",
   "type": "object",
   "required": ["language", "consequences"],
   "properties": {
     "language": {
       "type": "array",
-      "description": "The atomic language — concept assertions C(a), role assertions R(a,b), and bare atoms.",
+      "description": "The atomic language — concept assertions C(a) and role assertions R(a,b).",
       "items": { "type": "string" }
     },
     "consequences": {
@@ -50,29 +50,29 @@
       "description": "Known role names extracted from assertions.",
       "items": { "type": "string" }
     },
-    "schemas": {
+    "rdfs_schemas": {
       "type": "array",
-      "description": "Lazy inference schemas — not grounded over known individuals.",
+      "description": "Defeasible RDFS axiom schemas — evaluated lazily at query time.",
       "items": {
         "type": "object",
-        "required": ["role", "subject", "premise_concept", "conclusion"],
+        "required": ["type", "arg1", "arg2"],
         "properties": {
-          "role": {
+          "type": {
             "type": "string",
-            "description": "The role that scopes the quantification."
+            "enum": ["subClassOf", "range", "domain", "subPropertyOf"],
+            "description": "The RDFS schema type."
           },
-          "subject": {
+          "arg1": {
             "type": "string",
-            "description": "The individual being quantified over."
+            "description": "First argument: sub-concept (subClassOf), role (range/domain/subPropertyOf)."
           },
-          "premise_concept": {
-            "type": ["string", "null"],
-            "description": "Concept in the restriction, or null for unconditional schemas."
+          "arg2": {
+            "type": "string",
+            "description": "Second argument: super-concept (subClassOf), concept (range/domain), super-role (subPropertyOf)."
           },
-          "conclusion": {
-            "type": "array",
-            "description": "Conclusion template. May contain __OBJ__ placeholder.",
-            "items": { "type": "string" }
+          "annotation": {
+            "type": "string",
+            "description": "Optional human-readable description of the schema."
           }
         },
         "additionalProperties": false

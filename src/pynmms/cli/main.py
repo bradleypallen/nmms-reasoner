@@ -3,10 +3,10 @@
 Usage::
 
     pynmms tell -b base.json --create "A |~ B"
-    pynmms tell -b base.json --create --rq "Happy(alice) |~ Good(alice)"
+    pynmms tell -b base.json --create --rdfs "Happy(alice) |~ Good(alice)"
     pynmms ask  -b base.json "A => B"
-    pynmms ask  -b base.json --rq "ALL hasChild.Happy(alice), hasChild(alice,bob) => Happy(bob)"
-    pynmms repl [-b base.json] [--rq]
+    pynmms ask  -b base.json --rdfs "Happy(alice) => Good(alice)"
+    pynmms repl [-b base.json] [--rdfs]
 """
 
 from __future__ import annotations
@@ -38,8 +38,8 @@ def main(argv: list[str] | None = None) -> int:
         help='Statement: "A |~ B" or "atom A" (use - for stdin)',
     )
     tell_parser.add_argument(
-        "--rq", action="store_true",
-        help="Use restricted quantifier mode (concept/role assertions)",
+        "--rdfs", action="store_true",
+        help="Use RDFS mode (concept/role assertions with defeasible schemas)",
     )
     tell_output = tell_parser.add_mutually_exclusive_group()
     tell_output.add_argument(
@@ -65,8 +65,8 @@ def main(argv: list[str] | None = None) -> int:
         help='Sequent: "A => B" or "A, B => C, D" (use - for stdin)',
     )
     ask_parser.add_argument(
-        "--rq", action="store_true",
-        help="Use restricted quantifier mode",
+        "--rdfs", action="store_true",
+        help="Use RDFS mode (concept/role assertions with defeasible schemas)",
     )
     ask_output = ask_parser.add_mutually_exclusive_group()
     ask_output.add_argument(
@@ -84,8 +84,8 @@ def main(argv: list[str] | None = None) -> int:
     repl_parser = subparsers.add_parser("repl", help="Interactive REPL")
     repl_parser.add_argument("-b", "--base", default=None, help="Path to JSON base file to load")
     repl_parser.add_argument(
-        "--rq", action="store_true",
-        help="Use restricted quantifier mode",
+        "--rdfs", action="store_true",
+        help="Use RDFS mode (concept/role assertions with defeasible schemas)",
     )
 
     args = parser.parse_args(argv)

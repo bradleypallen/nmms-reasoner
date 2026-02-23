@@ -1,4 +1,4 @@
-"""RQ-specific tests for JSON output and exit codes."""
+"""RDFS-specific tests for JSON output and exit codes."""
 
 import json
 import tempfile
@@ -10,8 +10,8 @@ from pynmms.cli.main import main
 
 
 @pytest.fixture
-def rq_base_file():
-    """Create an RQ base file with Happy(alice) |~ Good(alice)."""
+def rdfs_base_file():
+    """Create an RDFS base file with Happy(alice) |~ Good(alice)."""
     with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
         json.dump({
             "language": ["Happy(alice)", "Good(alice)"],
@@ -21,7 +21,7 @@ def rq_base_file():
             "individuals": ["alice"],
             "concepts": ["Good", "Happy"],
             "roles": [],
-            "schemas": [],
+            "rdfs_schemas": [],
         }, f)
         path = f.name
     yield path
@@ -29,7 +29,7 @@ def rq_base_file():
 
 
 @pytest.fixture
-def rq_empty_base():
+def rdfs_empty_base():
     with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
         path = f.name
     Path(path).unlink()
@@ -37,82 +37,82 @@ def rq_empty_base():
     Path(path).unlink(missing_ok=True)
 
 
-class TestRQExitCodes:
-    def test_ask_rq_derivable_returns_0(self, rq_base_file):
-        rc = main(["ask", "-b", rq_base_file, "--rq", "Happy(alice) => Good(alice)"])
+class TestRDFSExitCodes:
+    def test_ask_rdfs_derivable_returns_0(self, rdfs_base_file):
+        rc = main(["ask", "-b", rdfs_base_file, "--rdfs", "Happy(alice) => Good(alice)"])
         assert rc == 0
 
-    def test_ask_rq_not_derivable_returns_2(self, rq_base_file):
-        rc = main(["ask", "-b", rq_base_file, "--rq", "Happy(alice) => Sad(alice)"])
+    def test_ask_rdfs_not_derivable_returns_2(self, rdfs_base_file):
+        rc = main(["ask", "-b", rdfs_base_file, "--rdfs", "Happy(alice) => Sad(alice)"])
         assert rc == 2
 
 
-class TestRQAskJSON:
-    def test_ask_rq_json_derivable(self, rq_base_file, capsys):
-        rc = main(["ask", "-b", rq_base_file, "--rq", "--json",
+class TestRDFSAskJSON:
+    def test_ask_rdfs_json_derivable(self, rdfs_base_file, capsys):
+        rc = main(["ask", "-b", rdfs_base_file, "--rdfs", "--json",
                     "Happy(alice) => Good(alice)"])
         assert rc == 0
         data = json.loads(capsys.readouterr().out)
         assert data["status"] == "DERIVABLE"
 
-    def test_ask_rq_json_not_derivable(self, rq_base_file, capsys):
-        rc = main(["ask", "-b", rq_base_file, "--rq", "--json",
+    def test_ask_rdfs_json_not_derivable(self, rdfs_base_file, capsys):
+        rc = main(["ask", "-b", rdfs_base_file, "--rdfs", "--json",
                     "Happy(alice) => Sad(alice)"])
         assert rc == 2
         data = json.loads(capsys.readouterr().out)
         assert data["status"] == "NOT_DERIVABLE"
 
 
-class TestRQTellJSON:
-    def test_tell_rq_json_atom(self, rq_empty_base, capsys):
-        rc = main(["tell", "-b", rq_empty_base, "--create", "--rq", "--json",
+class TestRDFSTellJSON:
+    def test_tell_rdfs_json_atom(self, rdfs_empty_base, capsys):
+        rc = main(["tell", "-b", rdfs_empty_base, "--create", "--rdfs", "--json",
                     "atom hasChild(alice,bob)"])
         assert rc == 0
         data = json.loads(capsys.readouterr().out)
         assert data["action"] == "added_atom"
         assert data["atom"] == "hasChild(alice,bob)"
 
-    def test_tell_rq_json_consequence(self, rq_empty_base, capsys):
-        rc = main(["tell", "-b", rq_empty_base, "--create", "--rq", "--json",
+    def test_tell_rdfs_json_consequence(self, rdfs_empty_base, capsys):
+        rc = main(["tell", "-b", rdfs_empty_base, "--create", "--rdfs", "--json",
                     "Happy(alice) |~ Good(alice)"])
         assert rc == 0
         data = json.loads(capsys.readouterr().out)
         assert data["action"] == "added_consequence"
 
 
-class TestRQBatch:
-    def test_tell_rq_batch(self, rq_empty_base, capsys):
+class TestRDFSBatch:
+    def test_tell_rdfs_batch(self, rdfs_empty_base, capsys):
         with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
             f.write('atom Happy(alice) "Alice is happy"\n')
             f.write("atom hasChild(alice,bob)\n")
             f.write("Happy(alice) |~ Good(alice)\n")
-            f.write("schema concept hasChild alice Happy\n")
-            f.write("schema inference hasChild alice Serious HeartAttack\n")
+            f.write("schema subClassOf Man Mortal\n")
+            f.write("schema range hasChild Person\n")
             batch_path = f.name
 
         try:
-            rc = main(["tell", "-b", rq_empty_base, "--create", "--rq",
+            rc = main(["tell", "-b", rdfs_empty_base, "--create", "--rdfs",
                         "--batch", batch_path])
             assert rc == 0
 
-            with open(rq_empty_base) as bf:
+            with open(rdfs_empty_base) as bf:
                 data = json.load(bf)
             assert "Happy(alice)" in data["language"]
             assert "hasChild(alice,bob)" in data["language"]
             assert len(data["consequences"]) == 1
-            assert len(data["schemas"]) == 2
+            assert len(data["rdfs_schemas"]) == 2
             assert data["annotations"]["Happy(alice)"] == "Alice is happy"
         finally:
             Path(batch_path).unlink(missing_ok=True)
 
-    def test_tell_rq_batch_json(self, rq_empty_base, capsys):
+    def test_tell_rdfs_batch_json(self, rdfs_empty_base, capsys):
         with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
             f.write("atom Happy(alice)\n")
             f.write("Happy(alice) |~ Good(alice)\n")
             batch_path = f.name
 
         try:
-            rc = main(["tell", "-b", rq_empty_base, "--create", "--rq",
+            rc = main(["tell", "-b", rdfs_empty_base, "--create", "--rdfs",
                         "--json", "--batch", batch_path])
             assert rc == 0
             out = capsys.readouterr().out
@@ -124,96 +124,93 @@ class TestRQBatch:
             Path(batch_path).unlink(missing_ok=True)
 
 
-class TestRQAnnotations:
-    def test_rq_annotation_round_trip(self, rq_empty_base):
-        main(["tell", "-b", rq_empty_base, "--create", "--rq",
+class TestRDFSAnnotations:
+    def test_rdfs_annotation_round_trip(self, rdfs_empty_base):
+        main(["tell", "-b", rdfs_empty_base, "--create", "--rdfs",
               'atom Happy(alice) "Alice is happy"'])
 
-        with open(rq_empty_base) as f:
+        with open(rdfs_empty_base) as f:
             data = json.load(f)
         assert data["annotations"]["Happy(alice)"] == "Alice is happy"
 
-        # Load and re-save to verify round-trip
-        from pynmms.rq.base import RQMaterialBase
-        base = RQMaterialBase.from_file(rq_empty_base)
+        from pynmms.rdfs.base import RDFSMaterialBase
+        base = RDFSMaterialBase.from_file(rdfs_empty_base)
         assert base.annotations["Happy(alice)"] == "Alice is happy"
 
 
-class TestRQSchemaAnnotations:
-    def test_concept_schema_annotation_json(self, rq_empty_base, capsys):
+class TestRDFSSchemaAnnotations:
+    def test_subclass_schema_annotation_json(self, rdfs_empty_base, capsys):
         with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
-            f.write("atom hasChild(alice,bob)\n")
-            f.write('schema concept hasChild alice Happy "All children of alice are happy"\n')
+            f.write("atom Man(socrates)\n")
+            f.write('schema subClassOf Man Mortal "All men are mortal"\n')
             batch_path = f.name
 
         try:
             rc = main([
-                "tell", "-b", rq_empty_base, "--create", "--rq", "--json",
+                "tell", "-b", rdfs_empty_base, "--create", "--rdfs", "--json",
                 "--batch", batch_path,
             ])
             assert rc == 0
             out = capsys.readouterr().out
             lines = [line for line in out.strip().split("\n") if line]
             schema_line = json.loads(lines[1])
-            assert schema_line["action"] == "registered_concept_schema"
-            assert schema_line["annotation"] == "All children of alice are happy"
+            assert schema_line["action"] == "registered_subClassOf_schema"
+            assert schema_line["annotation"] == "All men are mortal"
 
-            # Verify annotation in serialized file
-            with open(rq_empty_base) as bf:
+            with open(rdfs_empty_base) as bf:
                 data = json.load(bf)
-            assert len(data["schemas"]) == 1
-            assert data["schemas"][0]["annotation"] == "All children of alice are happy"
+            assert len(data["rdfs_schemas"]) == 1
+            assert data["rdfs_schemas"][0]["annotation"] == "All men are mortal"
         finally:
             Path(batch_path).unlink(missing_ok=True)
 
-    def test_inference_schema_annotation_json(self, rq_empty_base, capsys):
+    def test_range_schema_annotation_json(self, rdfs_empty_base, capsys):
         with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
             f.write("atom hasChild(alice,bob)\n")
-            f.write('schema inference hasChild alice Serious HeartAttack '
-                    '"Serious children risk heart attacks"\n')
+            f.write('schema range hasChild Person "Children are persons"\n')
             batch_path = f.name
 
         try:
             rc = main([
-                "tell", "-b", rq_empty_base, "--create", "--rq", "--json",
+                "tell", "-b", rdfs_empty_base, "--create", "--rdfs", "--json",
                 "--batch", batch_path,
             ])
             assert rc == 0
             out = capsys.readouterr().out
             lines = [line for line in out.strip().split("\n") if line]
             schema_line = json.loads(lines[1])
-            assert schema_line["action"] == "registered_inference_schema"
-            assert schema_line["annotation"] == "Serious children risk heart attacks"
+            assert schema_line["action"] == "registered_range_schema"
+            assert schema_line["annotation"] == "Children are persons"
 
-            with open(rq_empty_base) as bf:
+            with open(rdfs_empty_base) as bf:
                 data = json.load(bf)
-            assert data["schemas"][0]["annotation"] == "Serious children risk heart attacks"
+            assert data["rdfs_schemas"][0]["annotation"] == "Children are persons"
         finally:
             Path(batch_path).unlink(missing_ok=True)
 
-    def test_schema_annotation_round_trip(self, rq_empty_base):
+    def test_schema_annotation_round_trip(self, rdfs_empty_base):
         """Save with annotation, load, verify annotation preserved."""
-        from pynmms.rq.base import RQMaterialBase
+        from pynmms.rdfs.base import RDFSMaterialBase
 
-        base = RQMaterialBase(language={"hasChild(alice,bob)"})
-        base.register_concept_schema(
-            "hasChild", "alice", "Happy",
-            annotation="All children of alice are happy",
+        base = RDFSMaterialBase(language={"Man(socrates)"})
+        base.register_subclass(
+            "Man", "Mortal",
+            annotation="All men are mortal",
         )
-        base.to_file(rq_empty_base)
+        base.to_file(rdfs_empty_base)
 
-        restored = RQMaterialBase.from_file(rq_empty_base)
-        assert len(restored._inference_schemas) == 1
-        assert restored.schema_annotations == ["All children of alice are happy"]
+        restored = RDFSMaterialBase.from_file(rdfs_empty_base)
+        assert len(restored._rdfs_schemas) == 1
+        assert restored._rdfs_schemas[0][3] == "All men are mortal"
 
-    def test_schema_without_annotation_omits_field(self, rq_empty_base):
+    def test_schema_without_annotation_omits_field(self, rdfs_empty_base):
         """Schema without annotation should not have 'annotation' key in JSON."""
-        from pynmms.rq.base import RQMaterialBase
+        from pynmms.rdfs.base import RDFSMaterialBase
 
-        base = RQMaterialBase(language={"hasChild(alice,bob)"})
-        base.register_concept_schema("hasChild", "alice", "Happy")
-        base.to_file(rq_empty_base)
+        base = RDFSMaterialBase(language={"Man(socrates)"})
+        base.register_subclass("Man", "Mortal")
+        base.to_file(rdfs_empty_base)
 
-        with open(rq_empty_base) as f:
+        with open(rdfs_empty_base) as f:
             data = json.load(f)
-        assert "annotation" not in data["schemas"][0]
+        assert "annotation" not in data["rdfs_schemas"][0]

@@ -27,17 +27,18 @@ Commands:
   quit                     Exit the REPL
 """
 
-RQ_HELP_TEXT = """\
-Commands (RQ mode):
+RDFS_HELP_TEXT = """\
+Commands (RDFS mode):
   tell A |~ B                         Add a consequence to the base
   tell A, B |~                        Add incompatibility (empty consequent)
   tell |~ A                           Add theorem (empty antecedent)
   tell atom Happy(alice)              Add an atom to the base
   tell atom Happy(alice) "desc"       Add an atom with annotation
-  tell schema concept hasChild alice Happy
-                                      Register concept schema
-  tell schema inference hasChild alice Serious HeartAttack
-                                      Register inference schema
+  tell schema subClassOf Man Mortal   Register subClassOf schema
+  tell schema range hasChild Person   Register range schema
+  tell schema domain hasChild Parent  Register domain schema
+  tell schema subPropertyOf hasChild hasDescendant
+                                      Register subPropertyOf schema
   ask A => B                          Query derivability of a sequent
   show                                Display the current base
   show schemas                        Display registered schemas
@@ -91,24 +92,23 @@ def _parse_repl_ask(sequent_str: str) -> tuple[frozenset[str], frozenset[str]]:
 
 def run_repl(args: argparse.Namespace) -> int:
     """Execute the ``repl`` subcommand."""
-    rq_mode = getattr(args, "rq", False)
+    rdfs_mode = getattr(args, "rdfs", False)
 
-    if rq_mode:
-        from pynmms.rq.base import RQMaterialBase
-        from pynmms.rq.reasoner import NMMSRQReasoner
+    if rdfs_mode:
+        from pynmms.rdfs.base import RDFSMaterialBase
 
         base: MaterialBase
         if args.base and Path(args.base).exists():
-            base = RQMaterialBase.from_file(args.base)
-            print(f"Loaded RQ base from {args.base}")
+            base = RDFSMaterialBase.from_file(args.base)
+            print(f"Loaded RDFS base from {args.base}")
         else:
-            base = RQMaterialBase()
+            base = RDFSMaterialBase()
             if args.base:
-                print(f"Base file {args.base} not found, starting with empty RQ base.")
+                print(f"Base file {args.base} not found, starting with empty RDFS base.")
             else:
-                print("Starting with empty RQ base.")
+                print("Starting with empty RDFS base.")
 
-        print("pyNMMS REPL (RQ mode). Type 'help' for commands.\n")
+        print("pyNMMS REPL (RDFS mode). Type 'help' for commands.\n")
     else:
         if args.base and Path(args.base).exists():
             base = MaterialBase.from_file(args.base)
@@ -127,7 +127,7 @@ def run_repl(args: argparse.Namespace) -> int:
     try:
         while True:
             try:
-                prompt = "pynmms[rq]> " if rq_mode else "pynmms> "
+                prompt = "pynmms[rdfs]> " if rdfs_mode else "pynmms> "
                 line = input(prompt).strip()
             except EOFError:
                 print()
@@ -140,7 +140,7 @@ def run_repl(args: argparse.Namespace) -> int:
                 break
 
             if line == "help":
-                print(RQ_HELP_TEXT if rq_mode else HELP_TEXT)
+                print(RDFS_HELP_TEXT if rdfs_mode else HELP_TEXT)
                 continue
 
             if line == "show":
@@ -160,24 +160,28 @@ def run_repl(args: argparse.Namespace) -> int:
                     print(f"  {ant} |~ {con}")
                 continue
 
-            if rq_mode and line == "show schemas":
-                assert isinstance(base, RQMaterialBase)  # type: ignore[unreachable]
-                schemas = base._inference_schemas
-                annotations = base.schema_annotations
+            if rdfs_mode and line == "show schemas":
+                assert isinstance(base, RDFSMaterialBase)  # type: ignore[unreachable]
+                schemas = base.rdfs_schemas
                 print(f"Schemas ({len(schemas)}):")
-                for idx, (s_role, s_subject, s_premise, s_concl) in enumerate(schemas):
-                    if s_premise:
-                        desc = f"  {s_role}({s_subject}, x), {s_premise}(x) |~ {s_concl}"
+                for schema_type, arg1, arg2, annotation in schemas:
+                    if schema_type == "subClassOf":
+                        desc = f"  subClassOf: {{{arg1}(x)}} |~ {{{arg2}(x)}}"
+                    elif schema_type == "range":
+                        desc = f"  range: {{{arg1}(x,y)}} |~ {{{arg2}(y)}}"
+                    elif schema_type == "domain":
+                        desc = f"  domain: {{{arg1}(x,y)}} |~ {{{arg2}(x)}}"
+                    elif schema_type == "subPropertyOf":
+                        desc = f"  subPropertyOf: {{{arg1}(x,y)}} |~ {{{arg2}(x,y)}}"
                     else:
-                        desc = f"  {s_role}({s_subject}, x) |~ {s_concl}"
-                    ann = annotations[idx] if idx < len(annotations) else None
-                    if ann:
-                        desc += f" \u2014 {ann}"
+                        desc = f"  {schema_type}: {arg1} -> {arg2}"
+                    if annotation:
+                        desc += f" \u2014 {annotation}"
                     print(desc)
                 continue
 
-            if rq_mode and line == "show individuals":
-                assert isinstance(base, RQMaterialBase)  # type: ignore[unreachable]
+            if rdfs_mode and line == "show individuals":
+                assert isinstance(base, RDFSMaterialBase)  # type: ignore[unreachable]
                 print(f"Individuals: {sorted(base.individuals)}")
                 print(f"Concepts: {sorted(base.concepts)}")
                 print(f"Roles: {sorted(base.roles)}")
@@ -207,8 +211,8 @@ def run_repl(args: argparse.Namespace) -> int:
             if line.startswith("load "):
                 filepath = line[5:].strip()
                 try:
-                    if rq_mode:
-                        base = RQMaterialBase.from_file(filepath)
+                    if rdfs_mode:
+                        base = RDFSMaterialBase.from_file(filepath)
                     else:
                         base = MaterialBase.from_file(filepath)
                     print(f"Loaded from {filepath}")
@@ -216,43 +220,53 @@ def run_repl(args: argparse.Namespace) -> int:
                     print(f"Error loading: {e}")
                 continue
 
-            # Schema commands (RQ mode only)
-            if rq_mode and line.startswith("tell schema "):
-                assert isinstance(base, RQMaterialBase)  # type: ignore[unreachable]
+            # Schema commands (RDFS mode only)
+            if rdfs_mode and line.startswith("tell schema "):
+                assert isinstance(base, RDFSMaterialBase)  # type: ignore[unreachable]
                 from pynmms.cli.tell import _extract_trailing_annotation
 
                 rest = line[len("tell schema "):].strip()
                 body, annotation = _extract_trailing_annotation(rest)
                 parts = body.split()
                 try:
-                    if parts[0] == "concept" and len(parts) == 4:
-                        _, role, subject, concept = parts
-                        base.register_concept_schema(
-                            role, subject, concept, annotation=annotation
+                    if parts[0] == "subClassOf" and len(parts) == 3:
+                        _, sub_concept, super_concept = parts
+                        base.register_subclass(
+                            sub_concept, super_concept, annotation=annotation
                         )
-                        msg = f"Registered concept schema: {role}({subject}, x) |~ {concept}(x)"
+                        msg = f"Registered subClassOf schema: {{{sub_concept}(x)}} |~ {{{super_concept}(x)}}"
                         if annotation:
                             msg += f" \u2014 {annotation}"
                         print(msg)
-                    elif parts[0] == "inference" and len(parts) == 5:
-                        _, role, subject, premise, concl_name = parts
-                        from pynmms.rq.syntax import make_concept_assertion
-                        base.register_inference_schema(
-                            role, subject, premise,
-                            {make_concept_assertion(concl_name, "__OBJ__")},
-                            annotation=annotation,
+                    elif parts[0] == "range" and len(parts) == 3:
+                        _, role, concept = parts
+                        base.register_range(role, concept, annotation=annotation)
+                        msg = f"Registered range schema: {{{role}(x,y)}} |~ {{{concept}(y)}}"
+                        if annotation:
+                            msg += f" \u2014 {annotation}"
+                        print(msg)
+                    elif parts[0] == "domain" and len(parts) == 3:
+                        _, role, concept = parts
+                        base.register_domain(role, concept, annotation=annotation)
+                        msg = f"Registered domain schema: {{{role}(x,y)}} |~ {{{concept}(x)}}"
+                        if annotation:
+                            msg += f" \u2014 {annotation}"
+                        print(msg)
+                    elif parts[0] == "subPropertyOf" and len(parts) == 3:
+                        _, sub_role, super_role = parts
+                        base.register_subproperty(
+                            sub_role, super_role, annotation=annotation
                         )
-                        msg = (
-                            f"Registered inference schema: "
-                            f"{role}({subject}, x), {premise}(x) |~ {concl_name}(x)"
-                        )
+                        msg = f"Registered subPropertyOf schema: {{{sub_role}(x,y)}} |~ {{{super_role}(x,y)}}"
                         if annotation:
                             msg += f" \u2014 {annotation}"
                         print(msg)
                     else:
                         print(
-                            "Usage: tell schema concept <role> <subject> <concept>\n"
-                            "       tell schema inference <role> <subject> <premise> <conclusion>"
+                            "Usage: tell schema subClassOf <sub> <super>\n"
+                            "       tell schema range <role> <concept>\n"
+                            "       tell schema domain <role> <concept>\n"
+                            "       tell schema subPropertyOf <sub_role> <super_role>"
                         )
                 except (IndexError, ValueError) as e:
                     print(f"Error: {e}")
@@ -284,11 +298,7 @@ def run_repl(args: argparse.Namespace) -> int:
                 rest = line[4:]
                 try:
                     antecedent, consequent = _parse_repl_ask(rest)
-                    r: NMMSReasoner
-                    if rq_mode:
-                        r = NMMSRQReasoner(base, max_depth=25)
-                    else:
-                        r = NMMSReasoner(base, max_depth=25)
+                    r = NMMSReasoner(base, max_depth=25)
                     result = r.derives(antecedent, consequent)
 
                     if result.derivable:

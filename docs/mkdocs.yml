@@ -32,17 +32,16 @@ nav:
       - Proof Search: tutorial/proof-search.md
       - CLI Usage: tutorial/cli-usage.md
       - "Chapter 3 Walkthrough": tutorial/chapter3-walkthrough.md
-      - Restricted Quantifiers: tutorial/rq-tutorial.md
+      - RDFS Extension: tutorial/rdfs-tutorial.md
   - API Reference:
       - MaterialBase: api/base.md
       - NMMSReasoner: api/reasoner.md
       - Syntax: api/syntax.md
-      - RQ Material Base: api/rq-base.md
-      - RQ Reasoner: api/rq-reasoner.md
-      - RQ Syntax: api/rq-syntax.md
+      - RDFS Material Base: api/rdfs-base.md
+      - RDFS Syntax: api/rdfs-syntax.md
   - Theory:
       - NMMS Calculus: theory/nmms-calculus.md
-      - RQ Extension: theory/rq-extension.md
+      - RDFS Extension: theory/rdfs-extension.md
 
 markdown_extensions:
   - admonition

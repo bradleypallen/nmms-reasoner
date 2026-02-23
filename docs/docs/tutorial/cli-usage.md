@@ -49,28 +49,35 @@ Where `IDENTIFIER` is any non-empty string of letters, digits, and underscores b
 | &#124; | disjunction | binary, left-associative |
 | `->` | conditional (implication) | binary, right-associative |
 
-## The NMMS_RQ Object Language
+## The NMMS_RDFS Object Language
 
-The `--rq` flag enables **NMMS_RQ**, an extension of the propositional NMMS object language with ALC-style restricted quantifiers.
+The `--rdfs` flag enables **NMMS_RDFS**, an extension of the propositional NMMS object language with RDFS-style concept and role assertions.
 
-**Atoms.** In propositional NMMS, atoms are bare identifiers. In NMMS_RQ, atoms are **ground atomic formulas**:
+**Atoms.** In propositional NMMS, atoms are bare identifiers. In NMMS_RDFS, atoms are **ground atomic formulas**:
 
 | Form | Name | Example |
 |------|------|---------|
 | *C*(*a*) | concept assertion | `Happy(alice)` |
 | *R*(*a*, *b*) | role assertion | `hasChild(alice,bob)` |
 
-Bare propositional letters are not valid in NMMS_RQ.
+Bare propositional letters are not valid in NMMS_RDFS.
 
-**Grammar.** The NMMS_RQ grammar replaces the propositional `atom` production:
+**Grammar.** The NMMS_RDFS grammar replaces the propositional `atom` production:
 
 ```
 atom       ::=  CONCEPT '(' INDIVIDUAL ')'                  (* concept assertion *)
              |  ROLE '(' INDIVIDUAL ',' INDIVIDUAL ')'      (* role assertion *)
 sentence   ::=  ...                                          (* all propositional forms *)
-             |  'ALL' ROLE '.' CONCEPT '(' INDIVIDUAL ')'   (* universal restriction *)
-             |  'SOME' ROLE '.' CONCEPT '(' INDIVIDUAL ')'  (* existential restriction *)
 ```
+
+**Defeasible RDFS Schemas.** In RDFS mode, the `tell` command also supports schema registration:
+
+| Schema | CLI syntax | Generated axiom pattern |
+|--------|-----------|------------------------|
+| `subClassOf` | `schema subClassOf C D` | {C(x)} \|~ {D(x)} for any x |
+| `range` | `schema range R C` | {R(x,y)} \|~ {C(y)} for any x,y |
+| `domain` | `schema domain R C` | {R(x,y)} \|~ {C(x)} for any x,y |
+| `subPropertyOf` | `schema subPropertyOf R S` | {R(x,y)} \|~ {S(x,y)} for any x,y |
 
 ## `pynmms tell`
 
@@ -110,7 +117,7 @@ pynmms tell -b base.json "|~ p"
 |------|-------------|
 | `-b`, `--base` | Path to JSON base file (required) |
 | `--create` | Create the base file if missing |
-| `--rq` | Use restricted quantifier mode |
+| `--rdfs` | Use RDFS mode (concept/role assertions with defeasible schemas) |
 | `--json` | Output as JSON (pipe-friendly) |
 | `-q`, `--quiet` | Suppress output; rely on exit code |
 | `--batch FILE` | Read statements from FILE (use `-` for stdin) |
@@ -144,7 +151,7 @@ Following the `grep`/`diff`/`cmp` convention:
 | `-b`, `--base` | Path to JSON base file (required) |
 | `--trace` | Print the proof trace |
 | `--max-depth N` | Set the maximum proof depth (default: 25) |
-| `--rq` | Use restricted quantifier mode |
+| `--rdfs` | Use RDFS mode (concept/role assertions with defeasible schemas) |
 | `--json` | Output as JSON (pipe-friendly) |
 | `-q`, `--quiet` | Suppress output; rely on exit code |
 | `--batch FILE` | Read sequents from FILE (use `-` for stdin) |
@@ -262,20 +269,22 @@ s, t |~
 pynmms tell -b base.json --create --batch mybase.base
 ```
 
-### RQ batch format
+### RDFS batch format
 
-With `--rq`, batch files also support `schema` lines (with optional quoted annotations):
+With `--rdfs`, batch files also support `schema` lines (with optional quoted annotations):
 
 ```
-atom Happy(alice) "Alice is happy"
+atom Man(socrates) "Socrates is a man"
 atom hasChild(alice,bob)
-Happy(alice) |~ Good(alice)
-schema concept hasChild alice Happy "All children of alice are happy"
-schema inference hasChild alice Serious HeartAttack "Serious children risk heart attacks"
+Man(socrates) |~ Mortal(socrates)
+schema subClassOf Man Mortal "All men are mortal"
+schema range hasChild Person "Children are persons"
+schema domain hasChild Parent "Parents have children"
+schema subPropertyOf hasChild hasDescendant "Children are descendants"
 ```
 
 ```bash
-pynmms tell -b rq_base.json --create --rq --batch rq_base.base
+pynmms tell -b rdfs_base.json --create --rdfs --batch rdfs_base.base
 ```
 
 ### Ask batch format

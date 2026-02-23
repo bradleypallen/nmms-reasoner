@@ -117,19 +117,19 @@ def _process_tell_statement(
 def run_tell(args: argparse.Namespace) -> int:
     """Execute the ``tell`` subcommand."""
     base_path = Path(args.base)
-    rq_mode = getattr(args, "rq", False)
+    rdfs_mode = getattr(args, "rdfs", False)
     json_mode = getattr(args, "json", False)
     quiet = getattr(args, "quiet", False)
     batch = getattr(args, "batch", None)
     base: MaterialBase
 
-    if rq_mode:
-        from pynmms.rq.base import RQMaterialBase
+    if rdfs_mode:
+        from pynmms.rdfs.base import RDFSMaterialBase
 
         if base_path.exists():
-            base = RQMaterialBase.from_file(base_path)
+            base = RDFSMaterialBase.from_file(base_path)
         elif args.create:
-            base = RQMaterialBase()
+            base = RDFSMaterialBase()
         else:
             msg = f"Base file {base_path} does not exist. Use --create to create it."
             emit_error(msg, json_mode=json_mode, quiet=quiet)
@@ -146,7 +146,7 @@ def run_tell(args: argparse.Namespace) -> int:
 
     # --- Batch mode ---
     if batch is not None:
-        return _run_tell_batch(batch, base, base_path, rq_mode=rq_mode,
+        return _run_tell_batch(batch, base, base_path, rdfs_mode=rdfs_mode,
                                json_mode=json_mode, quiet=quiet)
 
     # --- Single statement ---
@@ -170,7 +170,7 @@ def _run_tell_batch(
     base: MaterialBase,
     base_path: Path,
     *,
-    rq_mode: bool = False,
+    rdfs_mode: bool = False,
     json_mode: bool = False,
     quiet: bool = False,
 ) -> int:
@@ -191,12 +191,12 @@ def _run_tell_batch(
         if not line or line.startswith("#"):
             continue
 
-        # RQ schema lines
-        if rq_mode and line.startswith("schema "):
-            from pynmms.rq.base import RQMaterialBase
-            assert isinstance(base, RQMaterialBase)
-            rc = _process_rq_schema_line(line, base, base_path,
-                                         json_mode=json_mode, quiet=quiet)
+        # RDFS schema lines
+        if rdfs_mode and line.startswith("schema "):
+            from pynmms.rdfs.base import RDFSMaterialBase
+            assert isinstance(base, RDFSMaterialBase)
+            rc = _process_rdfs_schema_line(line, base, base_path,
+                                           json_mode=json_mode, quiet=quiet)
             if rc != EXIT_SUCCESS:
                 had_error = True
             continue
@@ -229,7 +229,7 @@ def _extract_trailing_annotation(text: str) -> tuple[str, str | None]:
     return text, None
 
 
-def _process_rq_schema_line(
+def _process_rdfs_schema_line(
     line: str,
     base: object,
     base_path: Path,
@@ -237,44 +237,65 @@ def _process_rq_schema_line(
     json_mode: bool = False,
     quiet: bool = False,
 ) -> int:
-    """Process an RQ schema line like ``schema concept hasChild alice Happy``."""
+    """Process an RDFS schema line like ``schema subClassOf Man Mortal``."""
     from pynmms.cli.output import emit_json, tell_schema_response
-    from pynmms.rq.base import RQMaterialBase
+    from pynmms.rdfs.base import RDFSMaterialBase
 
-    assert isinstance(base, RQMaterialBase)
+    assert isinstance(base, RDFSMaterialBase)
 
     # Extract optional trailing quoted annotation
     body, annotation = _extract_trailing_annotation(line)
     parts = body.split()
 
     try:
-        if len(parts) >= 5 and parts[1] == "concept":
-            _, _, role, subject, concept = parts[:5]
-            base.register_concept_schema(role, subject, concept, annotation=annotation)
-            details = f"{role}({subject}, x) |~ {concept}(x)"
+        if len(parts) >= 4 and parts[1] == "subClassOf":
+            _, _, sub_concept, super_concept = parts[:4]
+            base.register_subclass(sub_concept, super_concept, annotation=annotation)
+            details = f"{{{sub_concept}(x)}} |~ {{{super_concept}(x)}}"
             if json_mode:
                 emit_json(tell_schema_response(
-                    "concept", details, str(base_path), annotation=annotation))
+                    "subClassOf", details, str(base_path), annotation=annotation))
             elif not quiet:
-                msg = f"Registered concept schema: {details}"
+                msg = f"Registered subClassOf schema: {details}"
                 if annotation:
                     msg += f" \u2014 {annotation}"
                 print(msg)
             return EXIT_SUCCESS
-        elif len(parts) >= 6 and parts[1] == "inference":
-            _, _, role, subject, premise, concl_name = parts[:6]
-            from pynmms.rq.syntax import make_concept_assertion
-            base.register_inference_schema(
-                role, subject, premise,
-                {make_concept_assertion(concl_name, "__OBJ__")},
-                annotation=annotation,
-            )
-            details = f"{role}({subject}, x), {premise}(x) |~ {concl_name}(x)"
+        elif len(parts) >= 4 and parts[1] == "range":
+            _, _, role, concept = parts[:4]
+            base.register_range(role, concept, annotation=annotation)
+            details = f"{{{role}(x,y)}} |~ {{{concept}(y)}}"
             if json_mode:
                 emit_json(tell_schema_response(
-                    "inference", details, str(base_path), annotation=annotation))
+                    "range", details, str(base_path), annotation=annotation))
             elif not quiet:
-                msg = f"Registered inference schema: {details}"
+                msg = f"Registered range schema: {details}"
+                if annotation:
+                    msg += f" \u2014 {annotation}"
+                print(msg)
+            return EXIT_SUCCESS
+        elif len(parts) >= 4 and parts[1] == "domain":
+            _, _, role, concept = parts[:4]
+            base.register_domain(role, concept, annotation=annotation)
+            details = f"{{{role}(x,y)}} |~ {{{concept}(x)}}"
+            if json_mode:
+                emit_json(tell_schema_response(
+                    "domain", details, str(base_path), annotation=annotation))
+            elif not quiet:
+                msg = f"Registered domain schema: {details}"
+                if annotation:
+                    msg += f" \u2014 {annotation}"
+                print(msg)
+            return EXIT_SUCCESS
+        elif len(parts) >= 4 and parts[1] == "subPropertyOf":
+            _, _, sub_role, super_role = parts[:4]
+            base.register_subproperty(sub_role, super_role, annotation=annotation)
+            details = f"{{{sub_role}(x,y)}} |~ {{{super_role}(x,y)}}"
+            if json_mode:
+                emit_json(tell_schema_response(
+                    "subPropertyOf", details, str(base_path), annotation=annotation))
+            elif not quiet:
+                msg = f"Registered subPropertyOf schema: {details}"
                 if annotation:
                     msg += f" \u2014 {annotation}"
                 print(msg)

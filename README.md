@@ -73,46 +73,39 @@ pynmms ask -b base.json "A, C => B"     # NOT DERIVABLE
 pynmms repl -b base.json
 ```
 
-## Restricted Quantifiers (Experimental)
+## RDFS Extension
 
-The `pynmms.rq` subpackage is an experimental extension of propositional NMMS with ALC-style restricted quantifiers, avoiding issues Hlobil identifies with unrestricted quantification in nonmonotonic settings.
+The `pynmms.rdfs` subpackage extends propositional NMMS with defeasible RDFS-style axiom schemas (subClassOf, range, domain, subPropertyOf), enabling ontology reasoning while preserving nonmonotonicity.
 
 ```python
-from pynmms.rq import RQMaterialBase, NMMSRQReasoner
+from pynmms.rdfs import RDFSMaterialBase
+from pynmms.reasoner import NMMSReasoner
 
-base = RQMaterialBase(
-    language={
-        "hasChild(alice,bob)", "hasChild(alice,carol)",
-        "Happy(bob)", "Doctor(carol)",
-    },
-    consequences={
-        (frozenset({"hasChild(alice,bob)", "Doctor(bob)"}),
-         frozenset({"ParentOfDoctor(alice)"})),
-        (frozenset({"hasChild(alice,carol)", "Doctor(carol)"}),
-         frozenset({"ParentOfDoctor(alice)"})),
-    },
-)
+base = RDFSMaterialBase(language={"Man(socrates)", "hasChild(alice,bob)"})
 
-r = NMMSRQReasoner(base, max_depth=20)
+# Register defeasible RDFS schemas
+base.register_subclass("Man", "Mortal")       # {Man(x)} |~ {Mortal(x)}
+base.register_range("hasChild", "Person")     # {hasChild(x,y)} |~ {Person(y)}
+base.register_domain("hasChild", "Parent")    # {hasChild(x,y)} |~ {Parent(x)}
 
-# ALL hasChild.Doctor(alice) with trigger bob
+r = NMMSReasoner(base, max_depth=15)
+
+r.query(frozenset({"Man(socrates)"}), frozenset({"Mortal(socrates)"}))  # True
+r.query(frozenset({"hasChild(alice,bob)"}), frozenset({"Person(bob)"}))  # True
+
+# Nonmonotonic — extra premises defeat RDFS inferences
 r.query(
-    frozenset({"ALL hasChild.Doctor(alice)", "hasChild(alice,bob)"}),
-    frozenset({"ParentOfDoctor(alice)"}),
-)  # True
-
-# SOME hasChild.Doctor(alice) with known witness carol
-r.query(
-    frozenset({"hasChild(alice,carol)", "Doctor(carol)"}),
-    frozenset({"SOME hasChild.Doctor(alice)"}),
-)  # True
+    frozenset({"Man(socrates)", "Immortal(socrates)"}),
+    frozenset({"Mortal(socrates)"}),
+)  # False
 ```
 
 ```bash
-# CLI with --rq flag
-pynmms tell -b rq_base.json --create --rq "atom hasChild(alice,bob)"
-pynmms ask -b rq_base.json --rq "ALL hasChild.Doctor(alice), hasChild(alice,bob) => ParentOfDoctor(alice)"
-pynmms repl --rq
+# CLI with --rdfs flag
+pynmms tell -b rdfs_base.json --create --rdfs "atom Man(socrates)"
+pynmms tell -b rdfs_base.json --rdfs --batch schemas.txt  # batch with schema lines
+pynmms ask -b rdfs_base.json --rdfs "Man(socrates) => Mortal(socrates)"
+pynmms repl --rdfs
 ```
 
 ## Key Properties
@@ -136,7 +129,7 @@ The reasoner uses root-first backward proof search with memoization and backtrac
 
 ### Design decisions
 
-- Propositional core with experimental restricted quantifiers (`ALL R.C`, `SOME R.C`) in `pynmms.rq` subpackage
+- Propositional core with defeasible RDFS axiom schemas in `pynmms.rdfs` subpackage
 - Sets (frozensets), not multisets — Contraction is built in (per Proposition 21)
 - Sentences represented as strings, parsed on demand by a recursive descent parser producing frozen `Sentence` dataclass AST nodes
 - Base consequences use exact syntactic match — no subset/superset matching, which is what enforces the no-Weakening property
@@ -154,10 +147,10 @@ The reasoner uses root-first backward proof search with memoization and backtrac
 
 ### Test suite
 
-554 tests across 20 test files:
+452 tests across 20 test files:
 
-- **Propositional core (273 tests)**: Syntax parsing, MaterialBase construction/serialization, individual rule correctness, axiom derivability, structural properties (nonmonotonicity, nontransitivity, supraclassicality, DD/II/AA/SS), soundness audit, CLI integration, logging/tracing, Ch. 3 worked examples, Hypothesis property-based tests, cross-validation against ROLE.jl ground truth
-- **Restricted quantifiers (experimental, 281 tests)**: RQ sentence parsing, RQMaterialBase construction/validation/schemas, individual rule correctness for all 4 quantifier rules, structural properties with quantifiers, soundness probes, concept/inference schemas with lazy evaluation, CLI `--rq` integration, RQ demo scenario equivalence (all 10 original demo scenarios), RQ logging/tracing
+- **Propositional core (307 tests)**: Syntax parsing, MaterialBase construction/serialization, individual rule correctness, axiom derivability, structural properties (nonmonotonicity, nontransitivity, supraclassicality, DD/II/AA/SS), soundness audit, CLI integration, logging/tracing, Ch. 3 worked examples, Hypothesis property-based tests, cross-validation against ROLE.jl ground truth
+- **RDFS extension (145 tests)**: RDFS sentence parsing, RDFSMaterialBase construction/validation, four RDFS schema types (subClassOf, range, domain, subPropertyOf), nonmonotonicity and non-transitivity of schemas, lazy evaluation, NMMSReasoner integration, CommitmentStore, CLI `--rdfs` integration, JSON output/exit codes, batch mode, annotations, legacy equivalence, logging
 
 ## Theoretical Background
 

@@ -39,7 +39,7 @@ def _validate_atomic(s: str, context: str) -> None:
     if _STRUCTURED_ATOM_RE.match(s):
         raise ValueError(
             f"{context}: '{s}' looks like a concept or role assertion. "
-            f"Use --rq mode for NMMS_RQ atoms, or rename to a plain identifier."
+            f"Use --rdfs mode for NMMS_RDFS atoms, or rename to a plain identifier."
         )
 
 

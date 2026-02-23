@@ -15,6 +15,7 @@ pyNMMS provides:
 - **Supraclassicality**: all classically valid sequents remain derivable
 - A **Tell/Ask CLI** and **interactive REPL** for exploring reason relations
 - Full **proof traces** for understanding derivations
+- **RDFS extension** with defeasible subClassOf, range, domain, and subPropertyOf axiom schemas
 
 ## Quick Example
 
