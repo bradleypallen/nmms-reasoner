@@ -13,19 +13,15 @@
          <lastmod>2026-02-23</lastmod>
     </url>
     <url>
+         <loc>https://bradleypallen.github.io/pyNMMS/api/rdfs-base/</loc>
+         <lastmod>2026-02-23</lastmod>
+    </url>
+    <url>
+         <loc>https://bradleypallen.github.io/pyNMMS/api/rdfs-syntax/</loc>
+         <lastmod>2026-02-23</lastmod>
+    </url>
+    <url>
          <loc>https://bradleypallen.github.io/pyNMMS/api/reasoner/</loc>
-         <lastmod>2026-02-23</lastmod>
-    </url>
-    <url>
-         <loc>https://bradleypallen.github.io/pyNMMS/api/rq-base/</loc>
-         <lastmod>2026-02-23</lastmod>
-    </url>
-    <url>
-         <loc>https://bradleypallen.github.io/pyNMMS/api/rq-reasoner/</loc>
-         <lastmod>2026-02-23</lastmod>
-    </url>
-    <url>
-         <loc>https://bradleypallen.github.io/pyNMMS/api/rq-syntax/</loc>
          <lastmod>2026-02-23</lastmod>
     </url>
     <url>
@@ -37,7 +33,7 @@
          <lastmod>2026-02-23</lastmod>
     </url>
     <url>
-         <loc>https://bradleypallen.github.io/pyNMMS/theory/rq-extension/</loc>
+         <loc>https://bradleypallen.github.io/pyNMMS/theory/rdfs-extension/</loc>
          <lastmod>2026-02-23</lastmod>
     </url>
     <url>
@@ -61,7 +57,7 @@
          <lastmod>2026-02-23</lastmod>
     </url>
     <url>
-         <loc>https://bradleypallen.github.io/pyNMMS/tutorial/rq-tutorial/</loc>
+         <loc>https://bradleypallen.github.io/pyNMMS/tutorial/rdfs-tutorial/</loc>
          <lastmod>2026-02-23</lastmod>
     </url>
 </urlset>

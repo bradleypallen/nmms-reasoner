@@ -509,10 +509,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-nmms_rq-object-language" class="md-nav__link">
+  <a href="#the-nmms_rdfs-object-language" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The NMMS_RQ Object Language
+        The NMMS_RDFS Object Language
       
     </span>
   </a>
@@ -693,10 +693,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#rq-batch-format" class="md-nav__link">
+  <a href="#rdfs-batch-format" class="md-nav__link">
     <span class="md-ellipsis">
       
-        RQ batch format
+        RDFS batch format
       
     </span>
   </a>
@@ -763,14 +763,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../rq-tutorial/" class="md-nav__link">
+      <a href="../rdfs-tutorial/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Restricted Quantifiers
+    RDFS Extension
   
 
     
@@ -936,14 +936,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/rq-base/" class="md-nav__link">
+      <a href="../../api/rdfs-base/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    RQ Material Base
+    RDFS Material Base
   
 
     
@@ -964,42 +964,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/rq-reasoner/" class="md-nav__link">
+      <a href="../../api/rdfs-syntax/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    RQ Reasoner
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../api/rq-syntax/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    RQ Syntax
+    RDFS Syntax
   
 
     
@@ -1109,14 +1081,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../theory/rq-extension/" class="md-nav__link">
+      <a href="../../theory/rdfs-extension/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    RQ Extension
+    RDFS Extension
   
 
     
@@ -1197,10 +1169,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-nmms_rq-object-language" class="md-nav__link">
+  <a href="#the-nmms_rdfs-object-language" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The NMMS_RQ Object Language
+        The NMMS_RDFS Object Language
       
     </span>
   </a>
@@ -1381,10 +1353,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#rq-batch-format" class="md-nav__link">
+  <a href="#rdfs-batch-format" class="md-nav__link">
     <span class="md-ellipsis">
       
-        RQ batch format
+        RDFS batch format
       
     </span>
   </a>
@@ -1486,9 +1458,9 @@
 </tr>
 </tbody>
 </table>
-<h2 id="the-nmms_rq-object-language">The NMMS_RQ Object Language<a class="headerlink" href="#the-nmms_rq-object-language" title="Permanent link">&para;</a></h2>
-<p>The <code>--rq</code> flag enables <strong>NMMS_RQ</strong>, an extension of the propositional NMMS object language with ALC-style restricted quantifiers.</p>
-<p><strong>Atoms.</strong> In propositional NMMS, atoms are bare identifiers. In NMMS_RQ, atoms are <strong>ground atomic formulas</strong>:</p>
+<h2 id="the-nmms_rdfs-object-language">The NMMS_RDFS Object Language<a class="headerlink" href="#the-nmms_rdfs-object-language" title="Permanent link">&para;</a></h2>
+<p>The <code>--rdfs</code> flag enables <strong>NMMS_RDFS</strong>, an extension of the propositional NMMS object language with RDFS-style concept and role assertions.</p>
+<p><strong>Atoms.</strong> In propositional NMMS, atoms are bare identifiers. In NMMS_RDFS, atoms are <strong>ground atomic formulas</strong>:</p>
 <table>
 <thead>
 <tr>
@@ -1510,14 +1482,44 @@
 </tr>
 </tbody>
 </table>
-<p>Bare propositional letters are not valid in NMMS_RQ.</p>
-<p><strong>Grammar.</strong> The NMMS_RQ grammar replaces the propositional <code>atom</code> production:</p>
+<p>Bare propositional letters are not valid in NMMS_RDFS.</p>
+<p><strong>Grammar.</strong> The NMMS_RDFS grammar replaces the propositional <code>atom</code> production:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>atom       ::=  CONCEPT &#39;(&#39; INDIVIDUAL &#39;)&#39;                  (* concept assertion *)
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>             |  ROLE &#39;(&#39; INDIVIDUAL &#39;,&#39; INDIVIDUAL &#39;)&#39;      (* role assertion *)
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>sentence   ::=  ...                                          (* all propositional forms *)
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>             |  &#39;ALL&#39; ROLE &#39;.&#39; CONCEPT &#39;(&#39; INDIVIDUAL &#39;)&#39;   (* universal restriction *)
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>             |  &#39;SOME&#39; ROLE &#39;.&#39; CONCEPT &#39;(&#39; INDIVIDUAL &#39;)&#39;  (* existential restriction *)
 </code></pre></div>
+<p><strong>Defeasible RDFS Schemas.</strong> In RDFS mode, the <code>tell</code> command also supports schema registration:</p>
+<table>
+<thead>
+<tr>
+<th>Schema</th>
+<th>CLI syntax</th>
+<th>Generated axiom pattern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>subClassOf</code></td>
+<td><code>schema subClassOf C D</code></td>
+<td>{C(x)} |~ {D(x)} for any x</td>
+</tr>
+<tr>
+<td><code>range</code></td>
+<td><code>schema range R C</code></td>
+<td>{R(x,y)} |~ {C(y)} for any x,y</td>
+</tr>
+<tr>
+<td><code>domain</code></td>
+<td><code>schema domain R C</code></td>
+<td>{R(x,y)} |~ {C(x)} for any x,y</td>
+</tr>
+<tr>
+<td><code>subPropertyOf</code></td>
+<td><code>schema subPropertyOf R S</code></td>
+<td>{R(x,y)} |~ {S(x,y)} for any x,y</td>
+</tr>
+</tbody>
+</table>
 <h2 id="pynmms-tell"><code>pynmms tell</code><a class="headerlink" href="#pynmms-tell" title="Permanent link">&para;</a></h2>
 <p>Add atoms or consequences to a JSON base file.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Create a new base and add a consequence</span>
@@ -1564,8 +1566,8 @@
 <td>Create the base file if missing</td>
 </tr>
 <tr>
-<td><code>--rq</code></td>
-<td>Use restricted quantifier mode</td>
+<td><code>--rdfs</code></td>
+<td>Use RDFS mode (concept/role assertions with defeasible schemas)</td>
 </tr>
 <tr>
 <td><code>--json</code></td>
@@ -1635,8 +1637,8 @@
 <td>Set the maximum proof depth (default: 25)</td>
 </tr>
 <tr>
-<td><code>--rq</code></td>
-<td>Use restricted quantifier mode</td>
+<td><code>--rdfs</code></td>
+<td>Use RDFS mode (concept/role assertions with defeasible schemas)</td>
 </tr>
 <tr>
 <td><code>--json</code></td>
@@ -1781,15 +1783,17 @@
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>pynmms<span class="w"> </span>tell<span class="w"> </span>-b<span class="w"> </span>base.json<span class="w"> </span>--create<span class="w"> </span>--batch<span class="w"> </span>mybase.base
 </code></pre></div>
-<h3 id="rq-batch-format">RQ batch format<a class="headerlink" href="#rq-batch-format" title="Permanent link">&para;</a></h3>
-<p>With <code>--rq</code>, batch files also support <code>schema</code> lines (with optional quoted annotations):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>atom Happy(alice) &quot;Alice is happy&quot;
+<h3 id="rdfs-batch-format">RDFS batch format<a class="headerlink" href="#rdfs-batch-format" title="Permanent link">&para;</a></h3>
+<p>With <code>--rdfs</code>, batch files also support <code>schema</code> lines (with optional quoted annotations):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>atom Man(socrates) &quot;Socrates is a man&quot;
 <a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>atom hasChild(alice,bob)
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>Happy(alice) |~ Good(alice)
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>schema concept hasChild alice Happy &quot;All children of alice are happy&quot;
-<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>schema inference hasChild alice Serious HeartAttack &quot;Serious children risk heart attacks&quot;
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>Man(socrates) |~ Mortal(socrates)
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>schema subClassOf Man Mortal &quot;All men are mortal&quot;
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>schema range hasChild Person &quot;Children are persons&quot;
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>schema domain hasChild Parent &quot;Parents have children&quot;
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>schema subPropertyOf hasChild hasDescendant &quot;Children are descendants&quot;
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>pynmms<span class="w"> </span>tell<span class="w"> </span>-b<span class="w"> </span>rq_base.json<span class="w"> </span>--create<span class="w"> </span>--rq<span class="w"> </span>--batch<span class="w"> </span>rq_base.base
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>pynmms<span class="w"> </span>tell<span class="w"> </span>-b<span class="w"> </span>rdfs_base.json<span class="w"> </span>--create<span class="w"> </span>--rdfs<span class="w"> </span>--batch<span class="w"> </span>rdfs_base.base
 </code></pre></div>
 <h3 id="ask-batch-format">Ask batch format<a class="headerlink" href="#ask-batch-format" title="Permanent link">&para;</a></h3>
 <p>One sequent per line:</p>
