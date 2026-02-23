@@ -33,10 +33,24 @@ def main(argv: list[str] | None = None) -> int:
     tell_parser.add_argument(
         "--create", action="store_true", help="Create the base file if missing",
     )
-    tell_parser.add_argument("statement", help='Statement: "A |~ B" or "atom A"')
+    tell_parser.add_argument(
+        "statement", nargs="?", default=None,
+        help='Statement: "A |~ B" or "atom A" (use - for stdin)',
+    )
     tell_parser.add_argument(
         "--rq", action="store_true",
         help="Use restricted quantifier mode (concept/role assertions)",
+    )
+    tell_output = tell_parser.add_mutually_exclusive_group()
+    tell_output.add_argument(
+        "--json", action="store_true", help="Output as JSON (pipe-friendly)",
+    )
+    tell_output.add_argument(
+        "-q", "--quiet", action="store_true", help="Suppress output; rely on exit code",
+    )
+    tell_parser.add_argument(
+        "--batch", metavar="FILE",
+        help="Read statements from FILE (use - for stdin), one per line",
     )
 
     # --- ask ---
@@ -46,10 +60,24 @@ def main(argv: list[str] | None = None) -> int:
     ask_parser.add_argument(
         "--max-depth", type=int, default=25, help="Max proof depth (default: 25)",
     )
-    ask_parser.add_argument("sequent", help='Sequent: "A => B" or "A, B => C, D"')
+    ask_parser.add_argument(
+        "sequent", nargs="?", default=None,
+        help='Sequent: "A => B" or "A, B => C, D" (use - for stdin)',
+    )
     ask_parser.add_argument(
         "--rq", action="store_true",
         help="Use restricted quantifier mode",
+    )
+    ask_output = ask_parser.add_mutually_exclusive_group()
+    ask_output.add_argument(
+        "--json", action="store_true", help="Output as JSON (pipe-friendly)",
+    )
+    ask_output.add_argument(
+        "-q", "--quiet", action="store_true", help="Suppress output; rely on exit code",
+    )
+    ask_parser.add_argument(
+        "--batch", metavar="FILE",
+        help="Read sequents from FILE (use - for stdin), one per line",
     )
 
     # --- repl ---

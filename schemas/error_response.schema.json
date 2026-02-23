@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/bradleypallen/pyNMMS/schemas/error_response.schema.json",
+  "title": "Error Response",
+  "description": "JSON error output from `pynmms ask --json` or `pynmms tell --json`.",
+  "type": "object",
+  "required": ["error"],
+  "properties": {
+    "error": {
+      "type": "string",
+      "description": "Human-readable error message."
+    }
+  },
+  "additionalProperties": false
+}

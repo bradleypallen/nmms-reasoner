@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/bradleypallen/pyNMMS/schemas/base.schema.json",
+  "title": "Propositional Material Base",
+  "description": "A material base B = <L_B, |~_B> for propositional NMMS. The language L_B contains atomic sentences and the consequence relation |~_B is a set of sequents over L_B.",
+  "type": "object",
+  "required": ["language", "consequences"],
+  "properties": {
+    "language": {
+      "type": "array",
+      "description": "The atomic language L_B — a sorted list of atomic sentence strings.",
+      "items": { "type": "string" }
+    },
+    "consequences": {
+      "type": "array",
+      "description": "The base consequence relation |~_B — a list of sequent pairs.",
+      "items": {
+        "type": "object",
+        "required": ["antecedent", "consequent"],
+        "properties": {
+          "antecedent": {
+            "type": "array",
+            "description": "Left side (Gamma) of the sequent. May be empty for theorems.",
+            "items": { "type": "string" }
+          },
+          "consequent": {
+            "type": "array",
+            "description": "Right side (Delta) of the sequent. May be empty for incompatibilities.",
+            "items": { "type": "string" }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "annotations": {
+      "type": "object",
+      "description": "Optional natural-language descriptions for atoms. Keys are atom names, values are descriptions.",
+      "additionalProperties": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}

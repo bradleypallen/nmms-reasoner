@@ -13,43 +13,57 @@ logger = logging.getLogger(__name__)
 
 HELP_TEXT = """\
 Commands:
-  tell A |~ B         Add a consequence to the base
-  tell atom A         Add an atom to the base
-  ask A => B          Query derivability of a sequent
-  show                Display the current base
-  trace on/off        Toggle proof trace display
-  save <file>         Save base to a JSON file
-  load <file>         Load base from a JSON file
-  help                Show this help
-  quit                Exit the REPL
+  tell A |~ B              Add a consequence to the base
+  tell A, B |~             Add incompatibility (empty consequent)
+  tell |~ A                Add theorem (empty antecedent)
+  tell atom A              Add an atom to the base
+  tell atom A "desc"       Add an atom with annotation
+  ask A => B               Query derivability of a sequent
+  show                     Display the current base
+  trace on/off             Toggle proof trace display
+  save <file>              Save base to a JSON file
+  load <file>              Load base from a JSON file
+  help                     Show this help
+  quit                     Exit the REPL
 """
 
 RQ_HELP_TEXT = """\
 Commands (RQ mode):
-  tell A |~ B                   Add a consequence to the base
-  tell atom Happy(alice)        Add an atom to the base
+  tell A |~ B                         Add a consequence to the base
+  tell A, B |~                        Add incompatibility (empty consequent)
+  tell |~ A                           Add theorem (empty antecedent)
+  tell atom Happy(alice)              Add an atom to the base
+  tell atom Happy(alice) "desc"       Add an atom with annotation
   tell schema concept hasChild alice Happy
-                                Register concept schema: hasChild(alice,x) |~ Happy(x)
+                                      Register concept schema
   tell schema inference hasChild alice Serious HeartAttack
-                                Register inference schema
-  ask A => B                    Query derivability of a sequent
-  show                          Display the current base
-  show schemas                  Display registered schemas
-  show individuals              Display known individuals
-  trace on/off                  Toggle proof trace display
-  save <file>                   Save base to a JSON file
-  load <file>                   Load base from a JSON file
-  help                          Show this help
-  quit                          Exit the REPL
+                                      Register inference schema
+  ask A => B                          Query derivability of a sequent
+  show                                Display the current base
+  show schemas                        Display registered schemas
+  show individuals                    Display known individuals
+  trace on/off                        Toggle proof trace display
+  save <file>                         Save base to a JSON file
+  load <file>                         Load base from a JSON file
+  help                                Show this help
+  quit                                Exit the REPL
 """
 
 
-def _parse_repl_tell(statement: str) -> tuple[str, frozenset[str] | None, frozenset[str] | None]:
-    """Parse a REPL tell statement (without the 'tell ' prefix)."""
+def _parse_repl_tell(
+    statement: str,
+) -> tuple[str, frozenset[str] | None, frozenset[str] | None, str | None]:
+    """Parse a REPL tell statement (without the 'tell ' prefix).
+
+    Returns (kind, antecedent, consequent, annotation).
+    """
+    from pynmms.cli.tell import _parse_atom_with_annotation
+
     statement = statement.strip()
 
     if statement.lower().startswith("atom "):
-        return ("atom", frozenset({statement[5:].strip()}), None)
+        atom, annotation = _parse_atom_with_annotation(statement[5:])
+        return ("atom", frozenset({atom}), None, annotation)
 
     if "|~" not in statement:
         raise ValueError(f"Expected 'atom X' or 'A, B |~ C, D', got: {statement!r}")
@@ -58,10 +72,7 @@ def _parse_repl_tell(statement: str) -> tuple[str, frozenset[str] | None, frozen
     antecedent = frozenset(s.strip() for s in parts[0].strip().split(",") if s.strip())
     consequent = frozenset(s.strip() for s in parts[1].strip().split(",") if s.strip())
 
-    if not antecedent or not consequent:
-        raise ValueError("Both antecedent and consequent must be non-empty.")
-
-    return ("consequence", antecedent, consequent)
+    return ("consequence", antecedent, consequent, None)
 
 
 def _parse_repl_ask(sequent_str: str) -> tuple[frozenset[str], frozenset[str]]:
@@ -134,12 +145,19 @@ def run_repl(args: argparse.Namespace) -> int:
 
             if line == "show":
                 data = base.to_dict()
+                ann = data.get("annotations", {})
                 print(f"Language ({len(data['language'])} atoms):")
                 for atom in data["language"]:
-                    print(f"  {atom}")
+                    desc = ann.get(atom)
+                    if desc:
+                        print(f"  {atom} \u2014 {desc}")
+                    else:
+                        print(f"  {atom}")
                 print(f"Consequences ({len(data['consequences'])}):")
                 for entry in data["consequences"]:
-                    print(f"  {set(entry['antecedent'])} |~ {set(entry['consequent'])}")
+                    ant = set(entry["antecedent"])
+                    con = set(entry["consequent"])
+                    print(f"  {ant} |~ {con}")
                 continue
 
             if rq_mode and line == "show schemas":
@@ -226,16 +244,21 @@ def run_repl(args: argparse.Namespace) -> int:
             if line.startswith("tell "):
                 rest = line[5:]
                 try:
-                    kind, antecedent, consequent = _parse_repl_tell(rest)
+                    kind, antecedent, consequent, annotation = _parse_repl_tell(rest)
                     if kind == "atom":
                         assert antecedent is not None
                         atom = next(iter(antecedent))
                         base.add_atom(atom)
-                        print(f"Added atom: {atom}")
+                        if annotation:
+                            base.annotate(atom, annotation)
+                            print(f"Added atom: {atom} \u2014 {annotation}")
+                        else:
+                            print(f"Added atom: {atom}")
                     else:
-                        assert antecedent is not None and consequent is not None
-                        base.add_consequence(antecedent, consequent)
-                        print(f"Added: {set(antecedent)} |~ {set(consequent)}")
+                        ant = antecedent if antecedent else frozenset()
+                        con = consequent if consequent else frozenset()
+                        base.add_consequence(ant, con)
+                        print(f"Added: {set(ant)} |~ {set(con)}")
                 except ValueError as e:
                     print(f"Error: {e}")
                 continue

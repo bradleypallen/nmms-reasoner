@@ -16,7 +16,15 @@ pytest --cov=pynmms --cov-report=term-missing
 
 # CLI usage
 pynmms tell -b base.json --create "A |~ B"
+pynmms tell -b base.json 'atom p "Tara is human"'
+pynmms tell -b base.json "s, t |~"           # empty consequent (incompatibility)
+pynmms tell -b base.json "|~ p"              # empty antecedent (theorem)
 pynmms ask -b base.json "A => B"
+pynmms ask -b base.json --json "A => B"      # JSON output
+pynmms ask -b base.json -q "A => B"          # quiet (exit code only)
+pynmms tell -b base.json --create --batch base.txt  # batch input
+pynmms ask -b base.json --batch queries.txt          # batch queries
+echo "A => B" | pynmms ask -b base.json -    # stdin input
 pynmms repl
 
 # CLI with restricted quantifiers (experimental)
@@ -64,14 +72,16 @@ These biconditionals are what make logical vocabulary "make explicit" reason rel
 
 1. **`syntax.py`** — Recursive descent parser for propositional sentences: atoms, negation (~), conjunction (&), disjunction (|), implication (->). Returns frozen `Sentence` dataclass AST nodes. Operator precedence: `&` > `|` > `->`.
 
-2. **`base.py`** — `MaterialBase` class implementing the material base B = <L_B, |~_B>. Stores atomic language and consequence relation. Exact syntactic match (no weakening). JSON serialization via `to_file()`/`from_file()`.
+2. **`base.py`** — `MaterialBase` class implementing the material base B = <L_B, |~_B>. Stores atomic language, consequence relation, and optional atom annotations. Exact syntactic match (no weakening). JSON serialization via `to_file()`/`from_file()`.
 
 3. **`reasoner.py`** — `NMMSReasoner` class with backward proof search implementing 8 Ketonen-style propositional rules (L¬, L→, L∧, L∨, R¬, R→, R∧, R∨). Returns `ProofResult` with derivability, trace, depth, and cache stats.
 
 4. **`cli/`** — Tell/Ask CLI with REPL mode (`--rq` flag enables restricted quantifier mode):
-   - `pynmms tell` — add atoms/consequences to a JSON base file
-   - `pynmms ask` — query derivability with optional trace
+   - `pynmms tell` — add atoms/consequences to a JSON base file; supports annotations, empty sides, `--json`, `-q`, `--batch`, stdin (`-`)
+   - `pynmms ask` — query derivability with optional trace; semantic exit codes (0=derivable, 1=error, 2=not derivable), `--json`, `-q`, `--batch`, stdin (`-`)
    - `pynmms repl` — interactive session with tell/ask/show/save/load
+   - `cli/exitcodes.py` — `EXIT_SUCCESS=0`, `EXIT_ERROR=1`, `EXIT_NOT_DERIVABLE=2`
+   - `cli/output.py` — JSON response builders for structured output
 
 ### Restricted Quantifiers — Experimental (`src/pynmms/rq/`)
 
@@ -96,9 +106,9 @@ The `pynmms.rq` subpackage is an experimental extension of propositional NMMS wi
 
 ## Test Suite
 
-554 tests across 20 test files:
+597 tests across 22 test files:
 
-**Propositional core (273 tests, 12 files):**
+**Propositional core (307 tests, 13 files):**
 - `test_syntax.py` — parser unit tests
 - `test_base.py` — MaterialBase construction, validation, axiom checks, serialization
 - `test_reasoner_axioms.py` — axiom-level derivability (Demo 1 equivalence)
@@ -109,9 +119,10 @@ The `pynmms.rq` subpackage is an experimental extension of propositional NMMS wi
 - `test_chapter3_examples.py` — every worked example from Ch. 3
 - `test_cross_validation_role.py` — cross-validation against ROLE.jl ground truth
 - `test_cli.py` — CLI integration tests
+- `test_cli_json.py` — JSON output, quiet mode, stdin, batch, exit codes, empty sides, annotations, Toy Base T integration
 - `test_logging.py` — proof trace and logging output
 
-**Restricted quantifiers — experimental (281 tests, 8 files):**
+**Restricted quantifiers — experimental (290 tests, 9 files):**
 - `test_rq_syntax.py` — RQ sentence parsing, helpers, atomicity checks
 - `test_rq_base.py` — RQMaterialBase construction, validation, schemas, CommitmentStore
 - `test_rq_reasoner_rules.py` — individual rule correctness for all 4 quantifier rules + propositional backward compat
@@ -119,6 +130,7 @@ The `pynmms.rq` subpackage is an experimental extension of propositional NMMS wi
 - `test_rq_reasoner_soundness.py` — containment-leak probes for all RQ rules
 - `test_rq_schemas.py` — concept/inference schemas, lazy evaluation, CommitmentStore integration
 - `test_rq_cli.py` — `--rq` flag with tell/ask/repl
+- `test_rq_cli_json.py` — RQ-specific tests for JSON output, exit codes, batch, annotations
 - `test_rq_legacy_equivalence.py` — RQ demo scenario equivalence (all 10 original demo scenarios)
 - `test_rq_logging.py` — RQ rule names in traces, blocking warnings
 

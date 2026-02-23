@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/bradleypallen/pyNMMS/schemas/ask_response.schema.json",
+  "title": "Ask Response",
+  "description": "JSON output from `pynmms ask --json`.",
+  "type": "object",
+  "required": ["status", "sequent", "depth_reached", "cache_hits"],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["DERIVABLE", "NOT_DERIVABLE"],
+      "description": "Whether the sequent is derivable in the NMMS calculus."
+    },
+    "sequent": {
+      "type": "object",
+      "required": ["antecedent", "consequent"],
+      "properties": {
+        "antecedent": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "consequent": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "depth_reached": {
+      "type": "integer",
+      "description": "Maximum proof search depth reached."
+    },
+    "cache_hits": {
+      "type": "integer",
+      "description": "Number of memoization cache hits during proof search."
+    },
+    "trace": {
+      "type": "array",
+      "description": "Proof trace (only present with --trace flag).",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}

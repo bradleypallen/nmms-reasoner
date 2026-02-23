@@ -31,6 +31,7 @@ nav:
       - Material Bases: tutorial/material-bases.md
       - Proof Search: tutorial/proof-search.md
       - CLI Usage: tutorial/cli-usage.md
+      - "Chapter 3 Walkthrough": tutorial/chapter3-walkthrough.md
       - Restricted Quantifiers: tutorial/rq-tutorial.md
   - API Reference:
       - MaterialBase: api/base.md

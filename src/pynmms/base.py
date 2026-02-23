@@ -54,9 +54,11 @@ class MaterialBase:
             | set[tuple[frozenset[str], frozenset[str]]]
             | None
         ) = None,
+        annotations: dict[str, str] | None = None,
     ) -> None:
         self._language: set[str] = set(language) if language else set()
         self._consequences: set[Sequent] = set()
+        self._annotations: dict[str, str] = dict(annotations) if annotations else {}
 
         # Validate all language atoms
         for s in self._language:
@@ -87,6 +89,11 @@ class MaterialBase:
         """The base consequence relation |~_B (read-only view)."""
         return frozenset(self._consequences)
 
+    @property
+    def annotations(self) -> dict[str, str]:
+        """Atom annotations (read-only view)."""
+        return dict(self._annotations)
+
     # --- Mutation ---
 
     def add_atom(self, s: str) -> None:
@@ -94,6 +101,11 @@ class MaterialBase:
         _validate_atomic(s, "add_atom")
         self._language.add(s)
         logger.debug("Added atom: %s", s)
+
+    def annotate(self, atom: str, description: str) -> None:
+        """Attach a natural-language description to an atom."""
+        self._annotations[atom] = description
+        logger.debug("Annotated atom %s: %s", atom, description)
 
     def add_consequence(self, antecedent: frozenset[str], consequent: frozenset[str]) -> None:
         """Add a base consequence Gamma |~_B Delta.
@@ -129,7 +141,7 @@ class MaterialBase:
 
     def to_dict(self) -> dict:
         """Serialize to a JSON-compatible dict."""
-        return {
+        d: dict = {
             "language": sorted(self._language),
             "consequences": [
                 {
@@ -141,6 +153,9 @@ class MaterialBase:
                 )
             ],
         }
+        if self._annotations:
+            d["annotations"] = dict(sorted(self._annotations.items()))
+        return d
 
     @classmethod
     def from_dict(cls, data: dict) -> MaterialBase:
@@ -151,7 +166,8 @@ class MaterialBase:
             gamma = frozenset(entry["antecedent"])
             delta = frozenset(entry["consequent"])
             consequences.add((gamma, delta))
-        return cls(language=language, consequences=consequences)
+        annotations = data.get("annotations", {})
+        return cls(language=language, consequences=consequences, annotations=annotations)
 
     def to_file(self, path: str | Path) -> None:
         """Write the base to a JSON file."""

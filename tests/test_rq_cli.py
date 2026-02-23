@@ -79,7 +79,7 @@ class TestRQAskCommand:
             path = f.name
 
         result = main(["ask", "-b", path, "--rq", "Happy(alice) => Sad(alice)"])
-        assert result == 0
+        assert result == 2
 
         Path(path).unlink()
 

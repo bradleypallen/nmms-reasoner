@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/bradleypallen/pyNMMS/schemas/tell_response.schema.json",
+  "title": "Tell Response",
+  "description": "JSON output from `pynmms tell --json`.",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": ["action", "atom", "base_file"],
+      "properties": {
+        "action": { "const": "added_atom" },
+        "atom": {
+          "type": "string",
+          "description": "The atom that was added."
+        },
+        "annotation": {
+          "type": "string",
+          "description": "Natural-language description of the atom (if provided)."
+        },
+        "base_file": {
+          "type": "string",
+          "description": "Path to the base file that was modified."
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": ["action", "consequence", "base_file"],
+      "properties": {
+        "action": { "const": "added_consequence" },
+        "consequence": {
+          "type": "object",
+          "required": ["antecedent", "consequent"],
+          "properties": {
+            "antecedent": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "consequent": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "additionalProperties": false
+        },
+        "base_file": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": ["action", "details", "base_file"],
+      "properties": {
+        "action": {
+          "type": "string",
+          "pattern": "^registered_.*_schema$",
+          "description": "Schema registration action (e.g. registered_concept_schema)."
+        },
+        "details": {
+          "type": "string",
+          "description": "Human-readable description of the registered schema."
+        },
+        "base_file": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}

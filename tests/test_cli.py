@@ -95,7 +95,7 @@ class TestAskCommand:
 
     def test_ask_not_derivable(self, base_file, capsys):
         result = main(["ask", "-b", base_file, "A => C"])
-        assert result == 0
+        assert result == 2
         captured = capsys.readouterr()
         assert "NOT DERIVABLE" in captured.out
 

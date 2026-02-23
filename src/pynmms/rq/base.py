@@ -64,6 +64,7 @@ class RQMaterialBase(MaterialBase):
         consequences: (
             set[Sequent] | set[tuple[frozenset[str], frozenset[str]]] | None
         ) = None,
+        annotations: dict[str, str] | None = None,
     ) -> None:
         self._individuals: set[str] = set()
         self._concepts: set[str] = set()
@@ -88,7 +89,7 @@ class RQMaterialBase(MaterialBase):
                 self._rq_consequences.add((gamma, delta))
 
         # Initialize parent with empty sets — we manage storage ourselves
-        super().__init__()
+        super().__init__(annotations=annotations)
         self._language = self._rq_language
         self._consequences = self._rq_consequences
 
@@ -290,8 +291,9 @@ class RQMaterialBase(MaterialBase):
             gamma = frozenset(entry["antecedent"])
             delta = frozenset(entry["consequent"])
             consequences.add((gamma, delta))
+        annotations = data.get("annotations", {})
 
-        base = cls(language=language, consequences=consequences)
+        base = cls(language=language, consequences=consequences, annotations=annotations)
 
         # Restore schemas
         for schema in data.get("schemas", []):

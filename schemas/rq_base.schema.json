@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/bradleypallen/pyNMMS/schemas/rq_base.schema.json",
+  "title": "RQ Material Base",
+  "description": "A material base for NMMS with restricted quantifiers. Extends the propositional base with individuals, concepts, roles, and inference schemas.",
+  "type": "object",
+  "required": ["language", "consequences"],
+  "properties": {
+    "language": {
+      "type": "array",
+      "description": "The atomic language — concept assertions C(a), role assertions R(a,b), and bare atoms.",
+      "items": { "type": "string" }
+    },
+    "consequences": {
+      "type": "array",
+      "description": "The base consequence relation |~_B.",
+      "items": {
+        "type": "object",
+        "required": ["antecedent", "consequent"],
+        "properties": {
+          "antecedent": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "consequent": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "annotations": {
+      "type": "object",
+      "description": "Optional natural-language descriptions for atoms.",
+      "additionalProperties": { "type": "string" }
+    },
+    "individuals": {
+      "type": "array",
+      "description": "Known individual names extracted from assertions.",
+      "items": { "type": "string" }
+    },
+    "concepts": {
+      "type": "array",
+      "description": "Known concept names extracted from assertions.",
+      "items": { "type": "string" }
+    },
+    "roles": {
+      "type": "array",
+      "description": "Known role names extracted from assertions.",
+      "items": { "type": "string" }
+    },
+    "schemas": {
+      "type": "array",
+      "description": "Lazy inference schemas — not grounded over known individuals.",
+      "items": {
+        "type": "object",
+        "required": ["role", "subject", "premise_concept", "conclusion"],
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "The role that scopes the quantification."
+          },
+          "subject": {
+            "type": "string",
+            "description": "The individual being quantified over."
+          },
+          "premise_concept": {
+            "type": ["string", "null"],
+            "description": "Concept in the restriction, or null for unconditional schemas."
+          },
+          "conclusion": {
+            "type": "array",
+            "description": "Conclusion template. May contain __OBJ__ placeholder.",
+            "items": { "type": "string" }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
