@@ -117,19 +117,19 @@ def _process_tell_statement(
 def run_tell(args: argparse.Namespace) -> int:
     """Execute the ``tell`` subcommand."""
     base_path = Path(args.base)
-    rdfs_mode = getattr(args, "rdfs", False)
+    onto_mode = getattr(args, "onto", False)
     json_mode = getattr(args, "json", False)
     quiet = getattr(args, "quiet", False)
     batch = getattr(args, "batch", None)
     base: MaterialBase
 
-    if rdfs_mode:
-        from pynmms.rdfs.base import RDFSMaterialBase
+    if onto_mode:
+        from pynmms.onto.base import OntoMaterialBase
 
         if base_path.exists():
-            base = RDFSMaterialBase.from_file(base_path)
+            base = OntoMaterialBase.from_file(base_path)
         elif args.create:
-            base = RDFSMaterialBase()
+            base = OntoMaterialBase()
         else:
             msg = f"Base file {base_path} does not exist. Use --create to create it."
             emit_error(msg, json_mode=json_mode, quiet=quiet)
@@ -146,7 +146,7 @@ def run_tell(args: argparse.Namespace) -> int:
 
     # --- Batch mode ---
     if batch is not None:
-        return _run_tell_batch(batch, base, base_path, rdfs_mode=rdfs_mode,
+        return _run_tell_batch(batch, base, base_path, onto_mode=onto_mode,
                                json_mode=json_mode, quiet=quiet)
 
     # --- Single statement ---
@@ -170,7 +170,7 @@ def _run_tell_batch(
     base: MaterialBase,
     base_path: Path,
     *,
-    rdfs_mode: bool = False,
+    onto_mode: bool = False,
     json_mode: bool = False,
     quiet: bool = False,
 ) -> int:
@@ -191,11 +191,11 @@ def _run_tell_batch(
         if not line or line.startswith("#"):
             continue
 
-        # RDFS schema lines
-        if rdfs_mode and line.startswith("schema "):
-            from pynmms.rdfs.base import RDFSMaterialBase
-            assert isinstance(base, RDFSMaterialBase)
-            rc = _process_rdfs_schema_line(line, base, base_path,
+        # Ontology schema lines
+        if onto_mode and line.startswith("schema "):
+            from pynmms.onto.base import OntoMaterialBase
+            assert isinstance(base, OntoMaterialBase)
+            rc = _process_onto_schema_line(line, base, base_path,
                                            json_mode=json_mode, quiet=quiet)
             if rc != EXIT_SUCCESS:
                 had_error = True
@@ -229,7 +229,7 @@ def _extract_trailing_annotation(text: str) -> tuple[str, str | None]:
     return text, None
 
 
-def _process_rdfs_schema_line(
+def _process_onto_schema_line(
     line: str,
     base: object,
     base_path: Path,
@@ -237,11 +237,11 @@ def _process_rdfs_schema_line(
     json_mode: bool = False,
     quiet: bool = False,
 ) -> int:
-    """Process an RDFS schema line like ``schema subClassOf Man Mortal``."""
+    """Process an ontology schema line like ``schema subClassOf Man Mortal``."""
     from pynmms.cli.output import emit_json, tell_schema_response
-    from pynmms.rdfs.base import RDFSMaterialBase
+    from pynmms.onto.base import OntoMaterialBase
 
-    assert isinstance(base, RDFSMaterialBase)
+    assert isinstance(base, OntoMaterialBase)
 
     # Extract optional trailing quoted annotation
     body, annotation = _extract_trailing_annotation(line)
@@ -296,6 +296,32 @@ def _process_rdfs_schema_line(
                     "subPropertyOf", details, str(base_path), annotation=annotation))
             elif not quiet:
                 msg = f"Registered subPropertyOf schema: {details}"
+                if annotation:
+                    msg += f" \u2014 {annotation}"
+                print(msg)
+            return EXIT_SUCCESS
+        elif len(parts) >= 4 and parts[1] == "disjointWith":
+            _, _, concept1, concept2 = parts[:4]
+            base.register_disjoint(concept1, concept2, annotation=annotation)
+            details = f"{{{concept1}(x), {concept2}(x)}} |~"
+            if json_mode:
+                emit_json(tell_schema_response(
+                    "disjointWith", details, str(base_path), annotation=annotation))
+            elif not quiet:
+                msg = f"Registered disjointWith schema: {details}"
+                if annotation:
+                    msg += f" \u2014 {annotation}"
+                print(msg)
+            return EXIT_SUCCESS
+        elif len(parts) >= 4 and parts[1] == "disjointProperties":
+            _, _, role1, role2 = parts[:4]
+            base.register_disjoint_properties(role1, role2, annotation=annotation)
+            details = f"{{{role1}(x,y), {role2}(x,y)}} |~"
+            if json_mode:
+                emit_json(tell_schema_response(
+                    "disjointProperties", details, str(base_path), annotation=annotation))
+            elif not quiet:
+                msg = f"Registered disjointProperties schema: {details}"
                 if annotation:
                     msg += f" \u2014 {annotation}"
                 print(msg)

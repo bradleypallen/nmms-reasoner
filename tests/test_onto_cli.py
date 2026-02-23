@@ -1,4 +1,4 @@
-"""Tests for pynmms CLI --rdfs flag with tell, ask, and repl subcommands."""
+"""Tests for pynmms CLI --onto flag with tell, ask, and repl subcommands."""
 
 import json
 import tempfile
@@ -8,13 +8,13 @@ from unittest.mock import patch
 from pynmms.cli.main import main
 
 
-class TestRDFSTellCommand:
-    def test_tell_rdfs_creates_base(self):
+class TestOntoTellCommand:
+    def test_tell_onto_creates_base(self):
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             path = f.name
         Path(path).unlink()
 
-        result = main(["tell", "-b", path, "--create", "--rdfs", "Happy(alice) |~ Good(alice)"])
+        result = main(["tell", "-b", path, "--create", "--onto", "Happy(alice) |~ Good(alice)"])
         assert result == 0
 
         with open(path) as f:
@@ -22,16 +22,16 @@ class TestRDFSTellCommand:
         assert "Happy(alice)" in data["language"]
         assert "Good(alice)" in data["language"]
         assert len(data["consequences"]) == 1
-        assert "rdfs_schemas" in data
+        assert "onto_schemas" in data
 
         Path(path).unlink()
 
-    def test_tell_rdfs_atom(self):
+    def test_tell_onto_atom(self):
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             path = f.name
         Path(path).unlink()
 
-        result = main(["tell", "-b", path, "--create", "--rdfs", "atom hasChild(alice,bob)"])
+        result = main(["tell", "-b", path, "--create", "--onto", "atom hasChild(alice,bob)"])
         assert result == 0
 
         with open(path) as f:
@@ -43,13 +43,13 @@ class TestRDFSTellCommand:
 
         Path(path).unlink()
 
-    def test_tell_rdfs_no_create_missing(self):
-        result = main(["tell", "-b", "/nonexistent/rdfs_base.json", "--rdfs", "P(a) |~ Q(a)"])
+    def test_tell_onto_no_create_missing(self):
+        result = main(["tell", "-b", "/nonexistent/onto_base.json", "--onto", "P(a) |~ Q(a)"])
         assert result == 1
 
 
-class TestRDFSAskCommand:
-    def test_ask_rdfs_derivable(self):
+class TestOntoAskCommand:
+    def test_ask_onto_derivable(self):
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump({
                 "language": ["Happy(alice)", "Good(alice)"],
@@ -57,16 +57,16 @@ class TestRDFSAskCommand:
                 "individuals": ["alice"],
                 "concepts": ["Happy", "Good"],
                 "roles": [],
-                "rdfs_schemas": [],
+                "onto_schemas": [],
             }, f)
             path = f.name
 
-        result = main(["ask", "-b", path, "--rdfs", "Happy(alice) => Good(alice)"])
+        result = main(["ask", "-b", path, "--onto", "Happy(alice) => Good(alice)"])
         assert result == 0
 
         Path(path).unlink()
 
-    def test_ask_rdfs_not_derivable(self):
+    def test_ask_onto_not_derivable(self):
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump({
                 "language": ["Happy(alice)"],
@@ -74,16 +74,16 @@ class TestRDFSAskCommand:
                 "individuals": ["alice"],
                 "concepts": ["Happy"],
                 "roles": [],
-                "rdfs_schemas": [],
+                "onto_schemas": [],
             }, f)
             path = f.name
 
-        result = main(["ask", "-b", path, "--rdfs", "Happy(alice) => Sad(alice)"])
+        result = main(["ask", "-b", path, "--onto", "Happy(alice) => Sad(alice)"])
         assert result == 2
 
         Path(path).unlink()
 
-    def test_ask_rdfs_with_trace(self):
+    def test_ask_onto_with_trace(self):
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             json.dump({
                 "language": ["Happy(alice)"],
@@ -91,12 +91,12 @@ class TestRDFSAskCommand:
                 "individuals": ["alice"],
                 "concepts": ["Happy"],
                 "roles": [],
-                "rdfs_schemas": [],
+                "onto_schemas": [],
             }, f)
             path = f.name
 
         result = main([
-            "ask", "-b", path, "--rdfs", "--trace",
+            "ask", "-b", path, "--onto", "--trace",
             "Happy(alice) => Happy(alice)",
         ])
         assert result == 0
@@ -104,69 +104,96 @@ class TestRDFSAskCommand:
         Path(path).unlink()
 
 
-class TestRDFSReplCommand:
-    def _run_repl(self, inputs, rdfs=True):
+class TestOntoReplCommand:
+    def _run_repl(self, inputs, onto=True):
         """Run the REPL with the given inputs."""
         args = ["repl"]
-        if rdfs:
-            args.append("--rdfs")
+        if onto:
+            args.append("--onto")
         with patch("builtins.input", side_effect=inputs + ["quit"]):
             return main(args)
 
-    def test_repl_rdfs_tell_and_ask(self):
+    def test_repl_onto_tell_and_ask(self):
         result = self._run_repl([
             "tell Happy(alice) |~ Good(alice)",
             "ask Happy(alice) => Good(alice)",
         ])
         assert result == 0
 
-    def test_repl_rdfs_tell_atom(self):
+    def test_repl_onto_tell_atom(self):
         result = self._run_repl([
             "tell atom hasChild(alice,bob)",
             "show",
         ])
         assert result == 0
 
-    def test_repl_rdfs_show_schemas(self):
+    def test_repl_onto_show_schemas(self):
         result = self._run_repl([
             "tell schema subClassOf Man Mortal",
             "show schemas",
         ])
         assert result == 0
 
-    def test_repl_rdfs_show_individuals(self):
+    def test_repl_onto_show_individuals(self):
         result = self._run_repl([
             "tell atom Happy(alice)",
             "show individuals",
         ])
         assert result == 0
 
-    def test_repl_rdfs_help(self):
+    def test_repl_onto_help(self):
         result = self._run_repl(["help"])
         assert result == 0
 
-    def test_repl_rdfs_schema_range(self):
+    def test_repl_onto_schema_range(self):
         result = self._run_repl([
             "tell schema range hasChild Person",
             "show schemas",
         ])
         assert result == 0
 
-    def test_repl_rdfs_schema_domain(self):
+    def test_repl_onto_schema_domain(self):
         result = self._run_repl([
             "tell schema domain hasChild Parent",
             "show schemas",
         ])
         assert result == 0
 
-    def test_repl_rdfs_schema_subproperty(self):
+    def test_repl_onto_schema_subproperty(self):
         result = self._run_repl([
             "tell schema subPropertyOf hasChild hasDescendant",
             "show schemas",
         ])
         assert result == 0
 
-    def test_repl_rdfs_schema_with_annotation(self, capsys):
+    def test_repl_onto_schema_disjoint_with(self):
+        result = self._run_repl([
+            "tell atom Man(socrates)",
+            "tell atom Woman(socrates)",
+            "tell schema disjointWith Man Woman",
+            "show schemas",
+        ])
+        assert result == 0
+
+    def test_repl_onto_schema_disjoint_properties(self):
+        result = self._run_repl([
+            "tell atom hasChild(alice,bob)",
+            "tell atom hasParent(alice,bob)",
+            "tell schema disjointProperties hasChild hasParent",
+            "show schemas",
+        ])
+        assert result == 0
+
+    def test_repl_onto_schema_disjoint_with_annotation(self, capsys):
+        result = self._run_repl([
+            'tell schema disjointWith Man Woman "Men and women are disjoint"',
+            "show schemas",
+        ])
+        assert result == 0
+        out = capsys.readouterr().out
+        assert "Men and women are disjoint" in out
+
+    def test_repl_onto_schema_with_annotation(self, capsys):
         result = self._run_repl([
             'tell schema subClassOf Man Mortal "All men are mortal"',
             "show schemas",

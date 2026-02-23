@@ -1,15 +1,15 @@
-"""RDFS demo scenario equivalence tests.
+"""Onto demo scenario equivalence tests.
 
-Verifies backward compatibility and RDFS schema functionality using
-NMMSReasoner + RDFSMaterialBase.
+Verifies backward compatibility and ontology schema functionality using
+NMMSReasoner + OntoMaterialBase.
 """
 
-from pynmms.rdfs.base import RDFSMaterialBase
+from pynmms.onto.base import OntoMaterialBase
 from pynmms.reasoner import NMMSReasoner
 
 
 def _r(language=None, consequences=None, max_depth=25):
-    base = RDFSMaterialBase(
+    base = OntoMaterialBase(
         language=language or set(),
         consequences=consequences or set(),
     )
@@ -22,7 +22,7 @@ def _r(language=None, consequences=None, max_depth=25):
 
 
 class TestDemo1PropositionalBackwardCompat:
-    """NMMSReasoner + RDFSMaterialBase with propositional-only features."""
+    """NMMSReasoner + OntoMaterialBase with propositional-only features."""
 
     def test_containment(self):
         r = _r(language={"P(a)", "Q(a)", "R(a)"}, consequences={
@@ -129,15 +129,15 @@ class TestDemo3MedicalDiagnosis:
 
 
 # -------------------------------------------------------------------
-# Demo 10: RDFS Schema Evaluation (replaces anchored schemas)
+# Demo 10: Ontology Schema Evaluation (replaces anchored schemas)
 # -------------------------------------------------------------------
 
 
-class TestDemo10RDFSSchemas:
-    """RDFS schemas with NMMSReasoner."""
+class TestDemo10OntoSchemas:
+    """Ontology schemas with NMMSReasoner."""
 
     def test_subclass_schema(self):
-        base = RDFSMaterialBase(language={"Man(socrates)"})
+        base = OntoMaterialBase(language={"Man(socrates)"})
         base.register_subclass("Man", "Mortal")
         r = NMMSReasoner(base, max_depth=15)
         assert r.query(
@@ -146,7 +146,7 @@ class TestDemo10RDFSSchemas:
         )
 
     def test_range_schema(self):
-        base = RDFSMaterialBase(language={"hasChild(alice,bob)"})
+        base = OntoMaterialBase(language={"hasChild(alice,bob)"})
         base.register_range("hasChild", "Person")
         r = NMMSReasoner(base, max_depth=15)
         assert r.query(
@@ -155,7 +155,7 @@ class TestDemo10RDFSSchemas:
         )
 
     def test_new_individual_no_regrounding(self):
-        base = RDFSMaterialBase(language={"Man(socrates)"})
+        base = OntoMaterialBase(language={"Man(socrates)"})
         base.register_subclass("Man", "Mortal")
         base.add_atom("Man(plato)")
         r = NMMSReasoner(base, max_depth=15)
@@ -165,7 +165,7 @@ class TestDemo10RDFSSchemas:
         )
 
     def test_nonmonotonicity_schema(self):
-        base = RDFSMaterialBase(language={"Man(socrates)"})
+        base = OntoMaterialBase(language={"Man(socrates)"})
         base.register_subclass("Man", "Mortal")
         r = NMMSReasoner(base, max_depth=15)
         assert not r.query(
@@ -174,7 +174,7 @@ class TestDemo10RDFSSchemas:
         )
 
     def test_nontransitivity_schema(self):
-        base = RDFSMaterialBase(language={"Man(socrates)"})
+        base = OntoMaterialBase(language={"Man(socrates)"})
         base.register_subclass("Man", "Mortal")
         base.register_subclass("Mortal", "Physical")
         r = NMMSReasoner(base, max_depth=15)
@@ -184,7 +184,7 @@ class TestDemo10RDFSSchemas:
         )
 
     def test_ddt_schema(self):
-        base = RDFSMaterialBase(language={"Man(socrates)"})
+        base = OntoMaterialBase(language={"Man(socrates)"})
         base.register_subclass("Man", "Mortal")
         r = NMMSReasoner(base, max_depth=15)
         assert r.query(

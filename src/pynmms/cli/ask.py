@@ -90,7 +90,7 @@ def _ask_one(
 def run_ask(args: argparse.Namespace) -> int:
     """Execute the ``ask`` subcommand."""
     base_path = Path(args.base)
-    rdfs_mode = getattr(args, "rdfs", False)
+    onto_mode = getattr(args, "onto", False)
     json_mode = getattr(args, "json", False)
     quiet = getattr(args, "quiet", False)
     batch = getattr(args, "batch", None)
@@ -104,10 +104,10 @@ def run_ask(args: argparse.Namespace) -> int:
     base: MaterialBase
     reasoner: NMMSReasoner
 
-    if rdfs_mode:
-        from pynmms.rdfs.base import RDFSMaterialBase
+    if onto_mode:
+        from pynmms.onto.base import OntoMaterialBase
 
-        base = RDFSMaterialBase.from_file(base_path)
+        base = OntoMaterialBase.from_file(base_path)
         reasoner = NMMSReasoner(base, max_depth=args.max_depth)
     else:
         base = MaterialBase.from_file(base_path)

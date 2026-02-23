@@ -1,14 +1,14 @@
-"""RDFS-style concept/role assertion parsing for NMMS.
+"""Ontology-style concept/role assertion parsing for NMMS.
 
 Extends the propositional parser with concept assertions (``C(a)``) and
-role assertions (``R(a,b)``) for RDFS-style defeasible ontology reasoning.
+role assertions (``R(a,b)``) for ontology-style reasoning.
 
 Grammar additions (beyond propositional)::
 
     concept_atom  ::= CONCEPT '(' INDIVIDUAL ')'
     role_atom     ::= ROLE '(' INDIVIDUAL ',' INDIVIDUAL ')'
 
-The parser tries binary connectives first (at depth-0), then RDFS-specific
+The parser tries binary connectives first (at depth-0), then ontology-specific
 patterns (role assertions, concept assertions). Bare propositional atoms
 are rejected -- use concept assertions ``C(a)`` or role assertions
 ``R(a,b)`` instead.
@@ -21,14 +21,14 @@ from dataclasses import dataclass
 
 from pynmms.syntax import CONJ, DISJ, IMPL, NEG, Sentence, parse_sentence
 
-# RDFS-specific sentence type constants
+# Ontology-specific sentence type constants
 ATOM_CONCEPT = "concept"
 ATOM_ROLE = "role"
 
 
 @dataclass(frozen=True, slots=True)
-class RDFSSentence:
-    """Immutable AST node for an RDFS-style sentence.
+class OntoSentence:
+    """Immutable AST node for an ontology-style sentence.
 
     Attributes:
         type: One of ATOM_CONCEPT, ATOM_ROLE.
@@ -51,7 +51,7 @@ class RDFSSentence:
             return f"{self.concept}({self.individual})"
         if self.type == ATOM_ROLE:
             return f"{self.role}({self.arg1},{self.arg2})"
-        return f"RDFSSentence({self.type})"  # pragma: no cover
+        return f"OntoSentence({self.type})"  # pragma: no cover
 
 
 # Pre-compiled regex patterns
@@ -59,10 +59,10 @@ _ROLE_RE = re.compile(r"^(\w+)\((\w+)\s*,\s*(\w+)\)$")
 _CONCEPT_RE = re.compile(r"^(\w+)\((\w+)\)$")
 
 
-def parse_rdfs_sentence(s: str) -> Sentence | RDFSSentence:
-    """Parse a string into a propositional Sentence or RDFSSentence AST.
+def parse_onto_sentence(s: str) -> Sentence | OntoSentence:
+    """Parse a string into a propositional Sentence or OntoSentence AST.
 
-    Tries binary connectives first (at depth-0), then RDFS-specific patterns
+    Tries binary connectives first (at depth-0), then ontology-specific patterns
     (role assertions, concept assertions), then falls through to propositional
     negation.
     """
@@ -83,7 +83,7 @@ def parse_rdfs_sentence(s: str) -> Sentence | RDFSSentence:
                 all_wrapped = False
                 break
         if all_wrapped:
-            return parse_rdfs_sentence(s[1:-1])
+            return parse_onto_sentence(s[1:-1])
 
     # --- Binary connectives at depth 0, lowest precedence first ---
 
@@ -155,12 +155,12 @@ def parse_rdfs_sentence(s: str) -> Sentence | RDFSSentence:
             raise ValueError("Negation with no operand")
         return Sentence(type=NEG, sub=parse_sentence(sub_str))
 
-    # --- RDFS-specific atomic patterns ---
+    # --- Ontology-specific atomic patterns ---
 
     # Role assertion: R(a,b)
     m = _ROLE_RE.match(s)
     if m:
-        return RDFSSentence(
+        return OntoSentence(
             type=ATOM_ROLE,
             role=m.group(1),
             arg1=m.group(2),
@@ -170,15 +170,15 @@ def parse_rdfs_sentence(s: str) -> Sentence | RDFSSentence:
     # Concept assertion: C(a)
     m = _CONCEPT_RE.match(s)
     if m:
-        return RDFSSentence(
+        return OntoSentence(
             type=ATOM_CONCEPT,
             concept=m.group(1),
             individual=m.group(2),
         )
 
-    # Bare propositional atoms are not valid in NMMS_RDFS.
+    # Bare propositional atoms are not valid in NMMS_Onto.
     raise ValueError(
-        f"Bare atom {s!r} is not valid in NMMS_RDFS. "
+        f"Bare atom {s!r} is not valid in NMMS_Onto. "
         f"Use concept assertions C(a) or role assertions R(a,b)."
     )
 
@@ -198,17 +198,17 @@ def make_role_assertion(role: str, arg1: str, arg2: str) -> str:
     return f"{role}({arg1},{arg2})"
 
 
-def is_rdfs_atomic(s: str) -> bool:
+def is_onto_atomic(s: str) -> bool:
     """Return True if *s* is a concept assertion or role assertion."""
     try:
-        parsed = parse_rdfs_sentence(s)
+        parsed = parse_onto_sentence(s)
     except ValueError:
         return False
-    if isinstance(parsed, RDFSSentence):
+    if isinstance(parsed, OntoSentence):
         return parsed.type in (ATOM_CONCEPT, ATOM_ROLE)
     return False
 
 
-def all_rdfs_atomic(sentences: frozenset[str]) -> bool:
-    """Return True if every sentence in *sentences* is RDFS-atomic."""
-    return all(is_rdfs_atomic(s) for s in sentences)
+def all_onto_atomic(sentences: frozenset[str]) -> bool:
+    """Return True if every sentence in *sentences* is onto-atomic."""
+    return all(is_onto_atomic(s) for s in sentences)

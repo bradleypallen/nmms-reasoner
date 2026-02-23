@@ -27,8 +27,8 @@ Commands:
   quit                     Exit the REPL
 """
 
-RDFS_HELP_TEXT = """\
-Commands (RDFS mode):
+ONTO_HELP_TEXT = """\
+Commands (ontology mode):
   tell A |~ B                         Add a consequence to the base
   tell A, B |~                        Add incompatibility (empty consequent)
   tell |~ A                           Add theorem (empty antecedent)
@@ -39,6 +39,9 @@ Commands (RDFS mode):
   tell schema domain hasChild Parent  Register domain schema
   tell schema subPropertyOf hasChild hasDescendant
                                       Register subPropertyOf schema
+  tell schema disjointWith Man Woman  Register disjointWith schema
+  tell schema disjointProperties hasChild hasParent
+                                      Register disjointProperties schema
   ask A => B                          Query derivability of a sequent
   show                                Display the current base
   show schemas                        Display registered schemas
@@ -92,23 +95,23 @@ def _parse_repl_ask(sequent_str: str) -> tuple[frozenset[str], frozenset[str]]:
 
 def run_repl(args: argparse.Namespace) -> int:
     """Execute the ``repl`` subcommand."""
-    rdfs_mode = getattr(args, "rdfs", False)
+    onto_mode = getattr(args, "onto", False)
 
-    if rdfs_mode:
-        from pynmms.rdfs.base import RDFSMaterialBase
+    if onto_mode:
+        from pynmms.onto.base import OntoMaterialBase
 
         base: MaterialBase
         if args.base and Path(args.base).exists():
-            base = RDFSMaterialBase.from_file(args.base)
-            print(f"Loaded RDFS base from {args.base}")
+            base = OntoMaterialBase.from_file(args.base)
+            print(f"Loaded ontology base from {args.base}")
         else:
-            base = RDFSMaterialBase()
+            base = OntoMaterialBase()
             if args.base:
-                print(f"Base file {args.base} not found, starting with empty RDFS base.")
+                print(f"Base file {args.base} not found, starting with empty ontology base.")
             else:
-                print("Starting with empty RDFS base.")
+                print("Starting with empty ontology base.")
 
-        print("pyNMMS REPL (RDFS mode). Type 'help' for commands.\n")
+        print("pyNMMS REPL (ontology mode). Type 'help' for commands.\n")
     else:
         if args.base and Path(args.base).exists():
             base = MaterialBase.from_file(args.base)
@@ -127,7 +130,7 @@ def run_repl(args: argparse.Namespace) -> int:
     try:
         while True:
             try:
-                prompt = "pynmms[rdfs]> " if rdfs_mode else "pynmms> "
+                prompt = "pynmms[onto]> " if onto_mode else "pynmms> "
                 line = input(prompt).strip()
             except EOFError:
                 print()
@@ -140,7 +143,7 @@ def run_repl(args: argparse.Namespace) -> int:
                 break
 
             if line == "help":
-                print(RDFS_HELP_TEXT if rdfs_mode else HELP_TEXT)
+                print(ONTO_HELP_TEXT if onto_mode else HELP_TEXT)
                 continue
 
             if line == "show":
@@ -160,9 +163,9 @@ def run_repl(args: argparse.Namespace) -> int:
                     print(f"  {ant} |~ {con}")
                 continue
 
-            if rdfs_mode and line == "show schemas":
-                assert isinstance(base, RDFSMaterialBase)  # type: ignore[unreachable]
-                schemas = base.rdfs_schemas
+            if onto_mode and line == "show schemas":
+                assert isinstance(base, OntoMaterialBase)  # type: ignore[unreachable]
+                schemas = base.onto_schemas
                 print(f"Schemas ({len(schemas)}):")
                 for schema_type, arg1, arg2, annotation in schemas:
                     if schema_type == "subClassOf":
@@ -173,6 +176,13 @@ def run_repl(args: argparse.Namespace) -> int:
                         desc = f"  domain: {{{arg1}(x,y)}} |~ {{{arg2}(x)}}"
                     elif schema_type == "subPropertyOf":
                         desc = f"  subPropertyOf: {{{arg1}(x,y)}} |~ {{{arg2}(x,y)}}"
+                    elif schema_type == "disjointWith":
+                        desc = f"  disjointWith: {{{arg1}(x), {arg2}(x)}} |~"
+                    elif schema_type == "disjointProperties":
+                        desc = (
+                            f"  disjointProperties:"
+                            f" {{{arg1}(x,y), {arg2}(x,y)}} |~"
+                        )
                     else:
                         desc = f"  {schema_type}: {arg1} -> {arg2}"
                     if annotation:
@@ -180,8 +190,8 @@ def run_repl(args: argparse.Namespace) -> int:
                     print(desc)
                 continue
 
-            if rdfs_mode and line == "show individuals":
-                assert isinstance(base, RDFSMaterialBase)  # type: ignore[unreachable]
+            if onto_mode and line == "show individuals":
+                assert isinstance(base, OntoMaterialBase)  # type: ignore[unreachable]
                 print(f"Individuals: {sorted(base.individuals)}")
                 print(f"Concepts: {sorted(base.concepts)}")
                 print(f"Roles: {sorted(base.roles)}")
@@ -211,8 +221,8 @@ def run_repl(args: argparse.Namespace) -> int:
             if line.startswith("load "):
                 filepath = line[5:].strip()
                 try:
-                    if rdfs_mode:
-                        base = RDFSMaterialBase.from_file(filepath)
+                    if onto_mode:
+                        base = OntoMaterialBase.from_file(filepath)
                     else:
                         base = MaterialBase.from_file(filepath)
                     print(f"Loaded from {filepath}")
@@ -220,9 +230,9 @@ def run_repl(args: argparse.Namespace) -> int:
                     print(f"Error loading: {e}")
                 continue
 
-            # Schema commands (RDFS mode only)
-            if rdfs_mode and line.startswith("tell schema "):
-                assert isinstance(base, RDFSMaterialBase)  # type: ignore[unreachable]
+            # Schema commands (ontology mode only)
+            if onto_mode and line.startswith("tell schema "):
+                assert isinstance(base, OntoMaterialBase)  # type: ignore[unreachable]
                 from pynmms.cli.tell import _extract_trailing_annotation
 
                 rest = line[len("tell schema "):].strip()
@@ -267,12 +277,38 @@ def run_repl(args: argparse.Namespace) -> int:
                         if annotation:
                             msg += f" \u2014 {annotation}"
                         print(msg)
+                    elif parts[0] == "disjointWith" and len(parts) == 3:
+                        _, concept1, concept2 = parts
+                        base.register_disjoint(
+                            concept1, concept2, annotation=annotation
+                        )
+                        msg = (
+                            f"Registered disjointWith schema:"
+                            f" {{{concept1}(x), {concept2}(x)}} |~"
+                        )
+                        if annotation:
+                            msg += f" \u2014 {annotation}"
+                        print(msg)
+                    elif parts[0] == "disjointProperties" and len(parts) == 3:
+                        _, role1, role2 = parts
+                        base.register_disjoint_properties(
+                            role1, role2, annotation=annotation
+                        )
+                        msg = (
+                            f"Registered disjointProperties schema:"
+                            f" {{{role1}(x,y), {role2}(x,y)}} |~"
+                        )
+                        if annotation:
+                            msg += f" \u2014 {annotation}"
+                        print(msg)
                     else:
                         print(
                             "Usage: tell schema subClassOf <sub> <super>\n"
                             "       tell schema range <role> <concept>\n"
                             "       tell schema domain <role> <concept>\n"
-                            "       tell schema subPropertyOf <sub_role> <super_role>"
+                            "       tell schema subPropertyOf <sub_role> <super_role>\n"
+                            "       tell schema disjointWith <concept1> <concept2>\n"
+                            "       tell schema disjointProperties <role1> <role2>"
                         )
                 except (IndexError, ValueError) as e:
                     print(f"Error: {e}")

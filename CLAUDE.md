@@ -27,18 +27,18 @@ pynmms ask -b base.json --batch queries.txt          # batch queries
 echo "A => B" | pynmms ask -b base.json -    # stdin input
 pynmms repl
 
-# CLI with RDFS extension
-pynmms tell -b rdfs_base.json --create --rdfs "atom Man(socrates)"
-pynmms tell -b rdfs_base.json --rdfs --batch schemas.txt
-pynmms ask -b rdfs_base.json --rdfs "Man(socrates) => Mortal(socrates)"
-pynmms repl --rdfs
+# CLI with ontology extension
+pynmms tell -b onto_base.json --create --onto "atom Man(socrates)"
+pynmms tell -b onto_base.json --onto --batch schemas.txt
+pynmms ask -b onto_base.json --onto "Man(socrates) => Mortal(socrates)"
+pynmms repl --onto
 ```
 
 Uses Python 3.10+ standard library only (no runtime dependencies). Dev dependencies: pytest, pytest-cov, ruff, mypy.
 
 ## Theoretical Foundation
 
-This implements the NMMS sequent calculus from Hlobil & Brandom 2025 (Ch. 3, "Introducing Logical Vocabulary"). The `pynmms` package implements propositional NMMS in the core and **defeasible RDFS axiom schemas** (subClassOf, range, domain, subPropertyOf) in the `pynmms.rdfs` subpackage.
+This implements the NMMS sequent calculus from Hlobil & Brandom 2025 (Ch. 3, "Introducing Logical Vocabulary"). The `pynmms` package implements propositional NMMS in the core and **ontology axiom schemas** (subClassOf, range, domain, subPropertyOf, disjointWith, disjointProperties) in the `pynmms.onto` subpackage.
 
 ### The NMMS Framework
 
@@ -77,27 +77,29 @@ These biconditionals are what make logical vocabulary "make explicit" reason rel
 
 3. **`reasoner.py`** — `NMMSReasoner` class with backward proof search implementing 8 Ketonen-style propositional rules (L¬, L→, L∧, L∨, R¬, R→, R∧, R∨). Returns `ProofResult` with derivability, trace, depth, and cache stats.
 
-4. **`cli/`** — Tell/Ask CLI with REPL mode (`--rdfs` flag enables RDFS mode):
+4. **`cli/`** — Tell/Ask CLI with REPL mode (`--onto` flag enables ontology mode):
    - `pynmms tell` — add atoms/consequences to a JSON base file; supports annotations, empty sides, `--json`, `-q`, `--batch`, stdin (`-`)
    - `pynmms ask` — query derivability with optional trace; semantic exit codes (0=derivable, 1=error, 2=not derivable), `--json`, `-q`, `--batch`, stdin (`-`)
    - `pynmms repl` — interactive session with tell/ask/show/save/load
    - `cli/exitcodes.py` — `EXIT_SUCCESS=0`, `EXIT_ERROR=1`, `EXIT_NOT_DERIVABLE=2`
    - `cli/output.py` — JSON response builders for structured output
 
-### RDFS Extension (`src/pynmms/rdfs/`)
+### Ontology Extension (`src/pynmms/onto/`)
 
-The `pynmms.rdfs` subpackage extends propositional NMMS with defeasible RDFS-style axiom schemas. Instead of adding proof rules, it enriches the material base with four unanchored axiom schema types that are evaluated lazily at query time.
+The `pynmms.onto` subpackage extends propositional NMMS with ontology axiom schemas — schema-level macros for material inferential commitments and incompatibilities. Instead of adding proof rules, it enriches the material base with six unanchored axiom schema types that are evaluated lazily at query time.
 
-1. **`rdfs/syntax.py`** — `RDFSSentence` frozen dataclass (types: `ATOM_CONCEPT`, `ATOM_ROLE`). `parse_rdfs_sentence()` tries binary connectives first, then RDFS patterns (role assertions, concept assertions). Bare propositional atoms are rejected.
+1. **`onto/syntax.py`** — `OntoSentence` frozen dataclass (types: `ATOM_CONCEPT`, `ATOM_ROLE`). `parse_onto_sentence()` tries binary connectives first, then ontology patterns (role assertions, concept assertions). Bare propositional atoms are rejected.
 
-2. **`rdfs/base.py`** — `RDFSMaterialBase(MaterialBase)` adds vocabulary tracking (`_individuals`, `_concepts`, `_roles`) and four RDFS schema types:
+2. **`onto/base.py`** — `OntoMaterialBase(MaterialBase)` adds vocabulary tracking (`_individuals`, `_concepts`, `_roles`) and six ontology schema types:
    - **subClassOf(C, D)**: `{C(x)} |~ {D(x)}` for any individual x
    - **range(R, C)**: `{R(x,y)} |~ {C(y)}` for any x, y
    - **domain(R, C)**: `{R(x,y)} |~ {C(x)}` for any x, y
    - **subPropertyOf(R, S)**: `{R(x,y)} |~ {S(x,y)}` for any x, y
+   - **disjointWith(C, D)**: `{C(x), D(x)} |~` for any individual x (material incompatibility)
+   - **disjointProperties(R, S)**: `{R(x,y), S(x,y)} |~` for any x, y (material incompatibility)
    All use exact match (no weakening). `CommitmentStore` provides a higher-level API.
 
-   **No separate reasoner** — the base `NMMSReasoner` works transparently with `RDFSMaterialBase` because RDFS schemas extend `is_axiom()`, not the proof rules.
+   **No separate reasoner** — the base `NMMSReasoner` works transparently with `OntoMaterialBase` because ontology schemas extend `is_axiom()`, not the proof rules.
 
 ### Key design properties preserved by the calculus:
 - **MOF**: Nonmonotonicity — adding premises can defeat inferences (no [Weakening])
@@ -108,7 +110,7 @@ The `pynmms.rdfs` subpackage extends propositional NMMS with defeasible RDFS-sty
 
 ## Test Suite
 
-452 tests across 20 test files:
+483 tests across 20 test files:
 
 **Propositional core (307 tests, 13 files):**
 - `test_syntax.py` — parser unit tests
@@ -124,14 +126,14 @@ The `pynmms.rdfs` subpackage extends propositional NMMS with defeasible RDFS-sty
 - `test_cli_json.py` — JSON output, quiet mode, stdin, batch, exit codes, empty sides, annotations, Toy Base T integration
 - `test_logging.py` — proof trace and logging output
 
-**RDFS extension (145 tests, 7 files):**
-- `test_rdfs_syntax.py` — RDFS sentence parsing (concept/role assertions), atomicity checks
-- `test_rdfs_base.py` — RDFSMaterialBase construction, validation, RDFS schemas, CommitmentStore
-- `test_rdfs_schemas.py` — all 4 RDFS schema types, nonmonotonicity, non-transitivity, lazy evaluation, NMMSReasoner integration
-- `test_rdfs_cli.py` — `--rdfs` flag with tell/ask/repl
-- `test_rdfs_cli_json.py` — RDFS-specific tests for JSON output, exit codes, batch, annotations
-- `test_rdfs_legacy_equivalence.py` — propositional backward compat, medical concept/role, RDFS schema equivalence
-- `test_rdfs_logging.py` — RDFS schema registration logging, proof traces
+**Ontology extension (176 tests, 7 files):**
+- `test_onto_syntax.py` — ontology sentence parsing (concept/role assertions), atomicity checks
+- `test_onto_base.py` — OntoMaterialBase construction, validation, ontology schemas, CommitmentStore
+- `test_onto_schemas.py` — all 6 ontology schema types, nonmonotonicity, non-transitivity, lazy evaluation, NMMSReasoner integration
+- `test_onto_cli.py` — `--onto` flag with tell/ask/repl
+- `test_onto_cli_json.py` — ontology-specific tests for JSON output, exit codes, batch, annotations
+- `test_onto_legacy_equivalence.py` — propositional backward compat, medical concept/role, ontology schema equivalence
+- `test_onto_logging.py` — ontology schema registration logging, proof traces
 
 ## Logging
 

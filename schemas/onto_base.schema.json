@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/bradleypallen/pyNMMS/schemas/rdfs_base.schema.json",
-  "title": "RDFS Material Base",
-  "description": "A material base for NMMS with defeasible RDFS axiom schemas. Extends the propositional base with individuals, concepts, roles, and four RDFS schema types.",
+  "$id": "https://github.com/bradleypallen/pyNMMS/schemas/onto_base.schema.json",
+  "title": "Ontology Material Base",
+  "description": "A material base for NMMS with ontology axiom schemas. Extends the propositional base with individuals, concepts, roles, and six ontology schema types.",
   "type": "object",
   "required": ["language", "consequences"],
   "properties": {
@@ -50,25 +50,25 @@
       "description": "Known role names extracted from assertions.",
       "items": { "type": "string" }
     },
-    "rdfs_schemas": {
+    "onto_schemas": {
       "type": "array",
-      "description": "Defeasible RDFS axiom schemas — evaluated lazily at query time.",
+      "description": "Ontology axiom schemas — evaluated lazily at query time.",
       "items": {
         "type": "object",
         "required": ["type", "arg1", "arg2"],
         "properties": {
           "type": {
             "type": "string",
-            "enum": ["subClassOf", "range", "domain", "subPropertyOf"],
-            "description": "The RDFS schema type."
+            "enum": ["subClassOf", "range", "domain", "subPropertyOf", "disjointWith", "disjointProperties"],
+            "description": "The ontology schema type."
           },
           "arg1": {
             "type": "string",
-            "description": "First argument: sub-concept (subClassOf), role (range/domain/subPropertyOf)."
+            "description": "First argument: sub-concept (subClassOf/disjointWith), role (range/domain/subPropertyOf/disjointProperties)."
           },
           "arg2": {
             "type": "string",
-            "description": "Second argument: super-concept (subClassOf), concept (range/domain), super-role (subPropertyOf)."
+            "description": "Second argument: super-concept (subClassOf), concept (range/domain/disjointWith), super-role (subPropertyOf), role (disjointProperties)."
           },
           "annotation": {
             "type": "string",

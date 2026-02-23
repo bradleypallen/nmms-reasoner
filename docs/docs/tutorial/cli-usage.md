@@ -49,20 +49,20 @@ Where `IDENTIFIER` is any non-empty string of letters, digits, and underscores b
 | &#124; | disjunction | binary, left-associative |
 | `->` | conditional (implication) | binary, right-associative |
 
-## The NMMS_RDFS Object Language
+## The NMMS_Onto Object Language
 
-The `--rdfs` flag enables **NMMS_RDFS**, an extension of the propositional NMMS object language with RDFS-style concept and role assertions.
+The `--onto` flag enables **NMMS_Onto**, an ontology engineering extension of the propositional NMMS object language with concept and role assertions. The vocabulary is borrowed from W3C RDFS and OWL for familiarity; the semantics are those of NMMS (exact-match defeasibility, no weakening, no transitivity).
 
-**Atoms.** In propositional NMMS, atoms are bare identifiers. In NMMS_RDFS, atoms are **ground atomic formulas**:
+**Atoms.** In propositional NMMS, atoms are bare identifiers. In NMMS_Onto, atoms are **ground atomic formulas**:
 
 | Form | Name | Example |
 |------|------|---------|
 | *C*(*a*) | concept assertion | `Happy(alice)` |
 | *R*(*a*, *b*) | role assertion | `hasChild(alice,bob)` |
 
-Bare propositional letters are not valid in NMMS_RDFS.
+Bare propositional letters are not valid in NMMS_Onto.
 
-**Grammar.** The NMMS_RDFS grammar replaces the propositional `atom` production:
+**Grammar.** The NMMS_Onto grammar replaces the propositional `atom` production:
 
 ```
 atom       ::=  CONCEPT '(' INDIVIDUAL ')'                  (* concept assertion *)
@@ -70,7 +70,7 @@ atom       ::=  CONCEPT '(' INDIVIDUAL ')'                  (* concept assertion
 sentence   ::=  ...                                          (* all propositional forms *)
 ```
 
-**Defeasible RDFS Schemas.** In RDFS mode, the `tell` command also supports schema registration:
+**Ontology Schemas.** In ontology mode, the `tell` command also supports schema registration. Schemas are macros that generate families of ordinary base axioms:
 
 | Schema | CLI syntax | Generated axiom pattern |
 |--------|-----------|------------------------|
@@ -78,6 +78,8 @@ sentence   ::=  ...                                          (* all propositiona
 | `range` | `schema range R C` | {R(x,y)} \|~ {C(y)} for any x,y |
 | `domain` | `schema domain R C` | {R(x,y)} \|~ {C(x)} for any x,y |
 | `subPropertyOf` | `schema subPropertyOf R S` | {R(x,y)} \|~ {S(x,y)} for any x,y |
+| `disjointWith` | `schema disjointWith C D` | {C(x), D(x)} \|~ {} for any x |
+| `disjointProperties` | `schema disjointProperties R S` | {R(x,y), S(x,y)} \|~ {} for any x,y |
 
 ## `pynmms tell`
 
@@ -117,7 +119,7 @@ pynmms tell -b base.json "|~ p"
 |------|-------------|
 | `-b`, `--base` | Path to JSON base file (required) |
 | `--create` | Create the base file if missing |
-| `--rdfs` | Use RDFS mode (concept/role assertions with defeasible schemas) |
+| `--onto` | Use ontology mode (concept/role assertions with schema-level macros) |
 | `--json` | Output as JSON (pipe-friendly) |
 | `-q`, `--quiet` | Suppress output; rely on exit code |
 | `--batch FILE` | Read statements from FILE (use `-` for stdin) |
@@ -151,7 +153,7 @@ Following the `grep`/`diff`/`cmp` convention:
 | `-b`, `--base` | Path to JSON base file (required) |
 | `--trace` | Print the proof trace |
 | `--max-depth N` | Set the maximum proof depth (default: 25) |
-| `--rdfs` | Use RDFS mode (concept/role assertions with defeasible schemas) |
+| `--onto` | Use ontology mode (concept/role assertions with schema-level macros) |
 | `--json` | Output as JSON (pipe-friendly) |
 | `-q`, `--quiet` | Suppress output; rely on exit code |
 | `--batch FILE` | Read sequents from FILE (use `-` for stdin) |
@@ -226,9 +228,9 @@ Starting with empty base.
 pyNMMS REPL. Type 'help' for commands.
 
 pynmms> tell atom p "Tara is human"
-Added atom: p — Tara is human
-pynmms> tell atom q "Tara's body temp is 37°C"
-Added atom: q — Tara's body temp is 37°C
+Added atom: p -- Tara is human
+pynmms> tell atom q "Tara's body temp is 37C"
+Added atom: q -- Tara's body temp is 37C
 pynmms> tell p |~ q
 Added: {'p'} |~ {'q'}
 pynmms> tell s, t |~
@@ -239,8 +241,8 @@ pynmms> ask p, r => q
 NOT DERIVABLE
 pynmms> show
 Language (4 atoms):
-  p — Tara is human
-  q — Tara's body temp is 37°C
+  p -- Tara is human
+  q -- Tara's body temp is 37C
   s
   t
 Consequences (2):
@@ -260,7 +262,7 @@ One statement per line. Blank lines and `#` comments are skipped:
 ```
 # mybase.base
 atom p "Tara is human"
-atom q "Tara's body temp is 37°C"
+atom q "Tara's body temp is 37C"
 p |~ q
 s, t |~
 ```
@@ -269,9 +271,9 @@ s, t |~
 pynmms tell -b base.json --create --batch mybase.base
 ```
 
-### RDFS batch format
+### Ontology batch format
 
-With `--rdfs`, batch files also support `schema` lines (with optional quoted annotations):
+With `--onto`, batch files also support `schema` lines (with optional quoted annotations):
 
 ```
 atom Man(socrates) "Socrates is a man"
@@ -281,10 +283,12 @@ schema subClassOf Man Mortal "All men are mortal"
 schema range hasChild Person "Children are persons"
 schema domain hasChild Parent "Parents have children"
 schema subPropertyOf hasChild hasDescendant "Children are descendants"
+schema disjointWith Alive Dead "Life and death are incompatible"
+schema disjointProperties employs isEmployedBy "Cannot both employ and be employed by"
 ```
 
 ```bash
-pynmms tell -b rdfs_base.json --create --rdfs --batch rdfs_base.base
+pynmms tell -b onto_base.json --create --onto --batch onto_base.base
 ```
 
 ### Ask batch format

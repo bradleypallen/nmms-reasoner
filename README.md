@@ -73,27 +73,28 @@ pynmms ask -b base.json "A, C => B"     # NOT DERIVABLE
 pynmms repl -b base.json
 ```
 
-## RDFS Extension
+## Ontology Extension
 
-The `pynmms.rdfs` subpackage extends propositional NMMS with defeasible RDFS-style axiom schemas (subClassOf, range, domain, subPropertyOf), enabling ontology reasoning while preserving nonmonotonicity.
+The `pynmms.onto` subpackage extends propositional NMMS with ontology axiom schemas (subClassOf, range, domain, subPropertyOf, disjointWith, disjointProperties), enabling ontology reasoning while preserving nonmonotonicity.
 
 ```python
-from pynmms.rdfs import RDFSMaterialBase
+from pynmms.onto import OntoMaterialBase
 from pynmms.reasoner import NMMSReasoner
 
-base = RDFSMaterialBase(language={"Man(socrates)", "hasChild(alice,bob)"})
+base = OntoMaterialBase(language={"Man(socrates)", "hasChild(alice,bob)"})
 
-# Register defeasible RDFS schemas
+# Register ontology axiom schemas
 base.register_subclass("Man", "Mortal")       # {Man(x)} |~ {Mortal(x)}
 base.register_range("hasChild", "Person")     # {hasChild(x,y)} |~ {Person(y)}
 base.register_domain("hasChild", "Parent")    # {hasChild(x,y)} |~ {Parent(x)}
+base.register_disjoint("Mortal", "Immortal")  # {Mortal(x), Immortal(x)} |~
 
 r = NMMSReasoner(base, max_depth=15)
 
 r.query(frozenset({"Man(socrates)"}), frozenset({"Mortal(socrates)"}))  # True
 r.query(frozenset({"hasChild(alice,bob)"}), frozenset({"Person(bob)"}))  # True
 
-# Nonmonotonic — extra premises defeat RDFS inferences
+# Nonmonotonic — extra premises defeat ontology inferences
 r.query(
     frozenset({"Man(socrates)", "Immortal(socrates)"}),
     frozenset({"Mortal(socrates)"}),
@@ -101,11 +102,11 @@ r.query(
 ```
 
 ```bash
-# CLI with --rdfs flag
-pynmms tell -b rdfs_base.json --create --rdfs "atom Man(socrates)"
-pynmms tell -b rdfs_base.json --rdfs --batch schemas.txt  # batch with schema lines
-pynmms ask -b rdfs_base.json --rdfs "Man(socrates) => Mortal(socrates)"
-pynmms repl --rdfs
+# CLI with --onto flag
+pynmms tell -b onto_base.json --create --onto "atom Man(socrates)"
+pynmms tell -b onto_base.json --onto --batch schemas.txt  # batch with schema lines
+pynmms ask -b onto_base.json --onto "Man(socrates) => Mortal(socrates)"
+pynmms repl --onto
 ```
 
 ## Key Properties
@@ -129,7 +130,7 @@ The reasoner uses root-first backward proof search with memoization and backtrac
 
 ### Design decisions
 
-- Propositional core with defeasible RDFS axiom schemas in `pynmms.rdfs` subpackage
+- Propositional core with ontology axiom schemas in `pynmms.onto` subpackage
 - Sets (frozensets), not multisets — Contraction is built in (per Proposition 21)
 - Sentences represented as strings, parsed on demand by a recursive descent parser producing frozen `Sentence` dataclass AST nodes
 - Base consequences use exact syntactic match — no subset/superset matching, which is what enforces the no-Weakening property
@@ -150,7 +151,7 @@ The reasoner uses root-first backward proof search with memoization and backtrac
 452 tests across 20 test files:
 
 - **Propositional core (307 tests)**: Syntax parsing, MaterialBase construction/serialization, individual rule correctness, axiom derivability, structural properties (nonmonotonicity, nontransitivity, supraclassicality, DD/II/AA/SS), soundness audit, CLI integration, logging/tracing, Ch. 3 worked examples, Hypothesis property-based tests, cross-validation against ROLE.jl ground truth
-- **RDFS extension (145 tests)**: RDFS sentence parsing, RDFSMaterialBase construction/validation, four RDFS schema types (subClassOf, range, domain, subPropertyOf), nonmonotonicity and non-transitivity of schemas, lazy evaluation, NMMSReasoner integration, CommitmentStore, CLI `--rdfs` integration, JSON output/exit codes, batch mode, annotations, legacy equivalence, logging
+- **Ontology extension (145 tests)**: Ontology sentence parsing, OntoMaterialBase construction/validation, six ontology schema types (subClassOf, range, domain, subPropertyOf, disjointWith, disjointProperties), nonmonotonicity and non-transitivity of schemas, lazy evaluation, NMMSReasoner integration, CommitmentStore, CLI `--onto` integration, JSON output/exit codes, batch mode, annotations, legacy equivalence, logging
 
 ## Theoretical Background
 

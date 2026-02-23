@@ -32,16 +32,16 @@ nav:
       - Proof Search: tutorial/proof-search.md
       - CLI Usage: tutorial/cli-usage.md
       - "Chapter 3 Walkthrough": tutorial/chapter3-walkthrough.md
-      - RDFS Extension: tutorial/rdfs-tutorial.md
+      - Ontology Extension: tutorial/onto-tutorial.md
   - API Reference:
       - MaterialBase: api/base.md
       - NMMSReasoner: api/reasoner.md
       - Syntax: api/syntax.md
-      - RDFS Material Base: api/rdfs-base.md
-      - RDFS Syntax: api/rdfs-syntax.md
+      - Ontology Material Base: api/onto-base.md
+      - Ontology Syntax: api/onto-syntax.md
   - Theory:
       - NMMS Calculus: theory/nmms-calculus.md
-      - RDFS Extension: theory/rdfs-extension.md
+      - Ontology Extension: theory/onto-extension.md
 
 markdown_extensions:
   - admonition

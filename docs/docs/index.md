@@ -2,7 +2,7 @@
 
 **An automated reasoner for the Non-Monotonic Multi-Succedent (NMMS) propositional sequent calculus** from Hlobil & Brandom 2025, Ch. 3.
 
-pyNMMS implements a proof search engine for the NMMS sequent calculus, which codifies *open reason relations* — consequence relations where Monotonicity and Transitivity can fail.
+pyNMMS implements a proof search engine for the NMMS sequent calculus, which codifies *open reason relations* -- consequence relations where Monotonicity and Transitivity can fail.
 
 ## Why pyNMMS?
 
@@ -15,7 +15,7 @@ pyNMMS provides:
 - **Supraclassicality**: all classically valid sequents remain derivable
 - A **Tell/Ask CLI** and **interactive REPL** for exploring reason relations
 - Full **proof traces** for understanding derivations
-- **RDFS extension** with defeasible subClassOf, range, domain, and subPropertyOf axiom schemas
+- **Ontology extension** with schema-level macros for material inferential commitments and incompatibilities (subClassOf, range, domain, subPropertyOf, disjointWith, disjointProperties)
 
 ## Quick Example
 
