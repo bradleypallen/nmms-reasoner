@@ -255,10 +255,10 @@ def run_repl(args: argparse.Namespace) -> int:
                         else:
                             print(f"Added atom: {atom}")
                     else:
-                        ant = antecedent if antecedent else frozenset()
-                        con = consequent if consequent else frozenset()
-                        base.add_consequence(ant, con)
-                        print(f"Added: {set(ant)} |~ {set(con)}")
+                        tell_ant = antecedent if antecedent else frozenset[str]()
+                        tell_con = consequent if consequent else frozenset[str]()
+                        base.add_consequence(tell_ant, tell_con)
+                        print(f"Added: {set(tell_ant)} |~ {set(tell_con)}")
                 except ValueError as e:
                     print(f"Error: {e}")
                 continue
