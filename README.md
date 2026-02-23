@@ -148,10 +148,10 @@ The reasoner uses root-first backward proof search with memoization and backtrac
 
 ### Test suite
 
-452 tests across 20 test files:
+483 tests across 20 test files:
 
 - **Propositional core (307 tests)**: Syntax parsing, MaterialBase construction/serialization, individual rule correctness, axiom derivability, structural properties (nonmonotonicity, nontransitivity, supraclassicality, DD/II/AA/SS), soundness audit, CLI integration, logging/tracing, Ch. 3 worked examples, Hypothesis property-based tests, cross-validation against ROLE.jl ground truth
-- **Ontology extension (145 tests)**: Ontology sentence parsing, OntoMaterialBase construction/validation, six ontology schema types (subClassOf, range, domain, subPropertyOf, disjointWith, disjointProperties), nonmonotonicity and non-transitivity of schemas, lazy evaluation, NMMSReasoner integration, CommitmentStore, CLI `--onto` integration, JSON output/exit codes, batch mode, annotations, legacy equivalence, logging
+- **Ontology extension (176 tests)**: Ontology sentence parsing, OntoMaterialBase construction/validation, six ontology schema types (subClassOf, range, domain, subPropertyOf, disjointWith, disjointProperties), nonmonotonicity and non-transitivity of schemas, lazy evaluation, NMMSReasoner integration, CommitmentStore, CLI `--onto` integration, JSON output/exit codes, batch mode, annotations, legacy equivalence, logging
 
 ## Theoretical Background
 
