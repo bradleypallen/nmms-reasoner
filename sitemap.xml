@@ -2,62 +2,66 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://bradleypallen.github.io/pyNMMS/</loc>
-         <lastmod>2026-02-22</lastmod>
+         <lastmod>2026-02-23</lastmod>
     </url>
     <url>
          <loc>https://bradleypallen.github.io/pyNMMS/getting-started/</loc>
-         <lastmod>2026-02-22</lastmod>
+         <lastmod>2026-02-23</lastmod>
     </url>
     <url>
          <loc>https://bradleypallen.github.io/pyNMMS/api/base/</loc>
-         <lastmod>2026-02-22</lastmod>
+         <lastmod>2026-02-23</lastmod>
     </url>
     <url>
          <loc>https://bradleypallen.github.io/pyNMMS/api/reasoner/</loc>
-         <lastmod>2026-02-22</lastmod>
+         <lastmod>2026-02-23</lastmod>
     </url>
     <url>
          <loc>https://bradleypallen.github.io/pyNMMS/api/rq-base/</loc>
-         <lastmod>2026-02-22</lastmod>
+         <lastmod>2026-02-23</lastmod>
     </url>
     <url>
          <loc>https://bradleypallen.github.io/pyNMMS/api/rq-reasoner/</loc>
-         <lastmod>2026-02-22</lastmod>
+         <lastmod>2026-02-23</lastmod>
     </url>
     <url>
          <loc>https://bradleypallen.github.io/pyNMMS/api/rq-syntax/</loc>
-         <lastmod>2026-02-22</lastmod>
+         <lastmod>2026-02-23</lastmod>
     </url>
     <url>
          <loc>https://bradleypallen.github.io/pyNMMS/api/syntax/</loc>
-         <lastmod>2026-02-22</lastmod>
+         <lastmod>2026-02-23</lastmod>
     </url>
     <url>
          <loc>https://bradleypallen.github.io/pyNMMS/theory/nmms-calculus/</loc>
-         <lastmod>2026-02-22</lastmod>
+         <lastmod>2026-02-23</lastmod>
     </url>
     <url>
          <loc>https://bradleypallen.github.io/pyNMMS/theory/rq-extension/</loc>
-         <lastmod>2026-02-22</lastmod>
+         <lastmod>2026-02-23</lastmod>
+    </url>
+    <url>
+         <loc>https://bradleypallen.github.io/pyNMMS/tutorial/chapter3-walkthrough/</loc>
+         <lastmod>2026-02-23</lastmod>
     </url>
     <url>
          <loc>https://bradleypallen.github.io/pyNMMS/tutorial/cli-usage/</loc>
-         <lastmod>2026-02-22</lastmod>
+         <lastmod>2026-02-23</lastmod>
     </url>
     <url>
          <loc>https://bradleypallen.github.io/pyNMMS/tutorial/concepts/</loc>
-         <lastmod>2026-02-22</lastmod>
+         <lastmod>2026-02-23</lastmod>
     </url>
     <url>
          <loc>https://bradleypallen.github.io/pyNMMS/tutorial/material-bases/</loc>
-         <lastmod>2026-02-22</lastmod>
+         <lastmod>2026-02-23</lastmod>
     </url>
     <url>
          <loc>https://bradleypallen.github.io/pyNMMS/tutorial/proof-search/</loc>
-         <lastmod>2026-02-22</lastmod>
+         <lastmod>2026-02-23</lastmod>
     </url>
     <url>
          <loc>https://bradleypallen.github.io/pyNMMS/tutorial/rq-tutorial/</loc>
-         <lastmod>2026-02-22</lastmod>
+         <lastmod>2026-02-23</lastmod>
     </url>
 </urlset>
