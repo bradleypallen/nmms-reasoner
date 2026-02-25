@@ -196,6 +196,34 @@ class TestOntoMaterialBaseIsAxiom:
             frozenset({"Mortal(socrates)"}),
         )
 
+    def test_onto_joint_commitment(self):
+        base = OntoMaterialBase(
+            language={"ChestPain(patient)", "ElevatedTroponin(patient)"},
+        )
+        base.register_joint_commitment(["ChestPain", "ElevatedTroponin"], "MI")
+        assert base.is_axiom(
+            frozenset({"ChestPain(patient)", "ElevatedTroponin(patient)"}),
+            frozenset({"MI(patient)"}),
+        )
+
+    def test_onto_joint_commitment_no_weakening(self):
+        base = OntoMaterialBase(
+            language={
+                "ChestPain(patient)",
+                "ElevatedTroponin(patient)",
+                "Extra(patient)",
+            },
+        )
+        base.register_joint_commitment(["ChestPain", "ElevatedTroponin"], "MI")
+        assert not base.is_axiom(
+            frozenset({
+                "ChestPain(patient)",
+                "ElevatedTroponin(patient)",
+                "Extra(patient)",
+            }),
+            frozenset({"MI(patient)"}),
+        )
+
     def test_no_match(self):
         base = OntoMaterialBase(language={"P(a)"})
         assert not base.is_axiom(frozenset({"P(a)"}), frozenset({"Q(a)"}))
@@ -256,6 +284,37 @@ class TestOntoMaterialBaseSerialization:
             frozenset({"hasChild(alice,bob)", "hasParent(alice,bob)"}),
             frozenset(),
         )
+
+    def test_joint_commitment_round_trip(self):
+        base = OntoMaterialBase(
+            language={"ChestPain(patient)", "ElevatedTroponin(patient)"},
+        )
+        base.register_joint_commitment(
+            ["ChestPain", "ElevatedTroponin"], "MI",
+            annotation="Chest pain plus troponin implies MI",
+        )
+
+        d = base.to_dict()
+        assert len(d["onto_schemas"]) == 1
+        assert d["onto_schemas"][0]["type"] == "jointCommitment"
+        assert d["onto_schemas"][0]["arg1"] == ["ChestPain", "ElevatedTroponin"]
+        assert d["onto_schemas"][0]["arg2"] == "MI"
+        assert d["onto_schemas"][0]["annotation"] == "Chest pain plus troponin implies MI"
+
+        restored = OntoMaterialBase.from_dict(d)
+        assert len(restored._onto_schemas) == 1
+        assert restored.is_axiom(
+            frozenset({"ChestPain(patient)", "ElevatedTroponin(patient)"}),
+            frozenset({"MI(patient)"}),
+        )
+
+    def test_joint_commitment_json_arg1_is_list(self):
+        """JSON serialization emits arg1 as a list, not comma-separated string."""
+        base = OntoMaterialBase()
+        base.register_joint_commitment(["A", "B", "C"], "D")
+        d = base.to_dict()
+        assert isinstance(d["onto_schemas"][0]["arg1"], list)
+        assert d["onto_schemas"][0]["arg1"] == ["A", "B", "C"]
 
     def test_to_file_and_back(self):
         base = OntoMaterialBase(
@@ -436,6 +495,39 @@ class TestCommitmentStore:
         assert "Happy(alice)" in desc
         assert "test" in desc
         assert "subClassOf" in desc
+
+    def test_commit_joint_commitment(self):
+        cs = CommitmentStore()
+        cs.commit_joint_commitment("mi_rule", ["ChestPain", "ElevatedTroponin"], "MI")
+        assert len(cs._onto_commitments) == 1
+        assert cs._onto_commitments[0] == (
+            "mi_rule", "jointCommitment", "ChestPain,ElevatedTroponin", "MI",
+        )
+
+    def test_commit_joint_commitment_minimum_two(self):
+        cs = CommitmentStore()
+        with pytest.raises(ValueError, match="at least 2"):
+            cs.commit_joint_commitment("bad", ["OnlyOne"], "D")
+
+    def test_compile_with_joint_commitment_schema(self):
+        cs = CommitmentStore()
+        cs.add_assertion("ChestPain(patient)")
+        cs.add_assertion("ElevatedTroponin(patient)")
+        cs.commit_joint_commitment("mi_rule", ["ChestPain", "ElevatedTroponin"], "MI")
+        base = cs.compile()
+        assert base.is_axiom(
+            frozenset({"ChestPain(patient)", "ElevatedTroponin(patient)"}),
+            frozenset({"MI(patient)"}),
+        )
+
+    def test_describe_joint_commitment(self):
+        cs = CommitmentStore()
+        cs.commit_joint_commitment("mi_rule", ["ChestPain", "ElevatedTroponin"], "MI")
+        desc = cs.describe()
+        assert "jointCommitment" in desc
+        assert "ChestPain(x)" in desc
+        assert "ElevatedTroponin(x)" in desc
+        assert "MI(x)" in desc
 
     def test_rejects_complex_assertion(self):
         cs = CommitmentStore()

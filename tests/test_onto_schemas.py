@@ -1,10 +1,12 @@
 """Tests for ontology schema functionality.
 
-Defeasible ontology axiom schemas: subClassOf, range, domain, subPropertyOf.
+Defeasible ontology axiom schemas: subClassOf, range, domain, subPropertyOf,
+disjointWith, disjointProperties, jointCommitment.
 Tests cover schema matching, nonmonotonicity, non-transitivity, lazy
 evaluation, and integration with NMMSReasoner.
 """
 
+import pytest
 
 from pynmms.onto.base import CommitmentStore, OntoMaterialBase
 from pynmms.reasoner import NMMSReasoner
@@ -514,4 +516,227 @@ class TestOntoReasonerIntegration:
         assert r.query(
             frozenset({"Man(socrates)"}),
             frozenset({"Mortal(socrates)"}),
+        )
+
+
+# -------------------------------------------------------------------
+# jointCommitment schemas
+# -------------------------------------------------------------------
+
+
+class TestJointCommitment:
+    def test_basic(self):
+        """{ChestPain(x), ElevatedTroponin(x)} |~ {MI(x)} for any x."""
+        base = OntoMaterialBase(
+            language={"ChestPain(patient)", "ElevatedTroponin(patient)"},
+        )
+        base.register_joint_commitment(["ChestPain", "ElevatedTroponin"], "MI")
+        assert base.is_axiom(
+            frozenset({"ChestPain(patient)", "ElevatedTroponin(patient)"}),
+            frozenset({"MI(patient)"}),
+        )
+
+    def test_order_independence(self):
+        """Order of concepts in antecedent doesn't matter."""
+        base = OntoMaterialBase(
+            language={"ChestPain(patient)", "ElevatedTroponin(patient)"},
+        )
+        base.register_joint_commitment(["ChestPain", "ElevatedTroponin"], "MI")
+        assert base.is_axiom(
+            frozenset({"ElevatedTroponin(patient)", "ChestPain(patient)"}),
+            frozenset({"MI(patient)"}),
+        )
+
+    def test_different_individual(self):
+        """Schema works for any individual."""
+        base = OntoMaterialBase(
+            language={"ChestPain(alice)", "ElevatedTroponin(alice)"},
+        )
+        base.register_joint_commitment(["ChestPain", "ElevatedTroponin"], "MI")
+        assert base.is_axiom(
+            frozenset({"ChestPain(alice)", "ElevatedTroponin(alice)"}),
+            frozenset({"MI(alice)"}),
+        )
+
+    def test_wrong_concepts(self):
+        base = OntoMaterialBase(
+            language={"Headache(patient)", "Fever(patient)"},
+        )
+        base.register_joint_commitment(["ChestPain", "ElevatedTroponin"], "MI")
+        assert not base.is_axiom(
+            frozenset({"Headache(patient)", "Fever(patient)"}),
+            frozenset({"MI(patient)"}),
+        )
+
+    def test_mismatched_individuals(self):
+        """All antecedent concepts and consequent must share the same individual."""
+        base = OntoMaterialBase(
+            language={"ChestPain(alice)", "ElevatedTroponin(bob)"},
+        )
+        base.register_joint_commitment(["ChestPain", "ElevatedTroponin"], "MI")
+        assert not base.is_axiom(
+            frozenset({"ChestPain(alice)", "ElevatedTroponin(bob)"}),
+            frozenset({"MI(alice)"}),
+        )
+
+    def test_no_weakening(self):
+        """Extra premise defeats the inference."""
+        base = OntoMaterialBase(
+            language={
+                "ChestPain(patient)",
+                "ElevatedTroponin(patient)",
+                "Extra(patient)",
+            },
+        )
+        base.register_joint_commitment(["ChestPain", "ElevatedTroponin"], "MI")
+        assert not base.is_axiom(
+            frozenset({
+                "ChestPain(patient)",
+                "ElevatedTroponin(patient)",
+                "Extra(patient)",
+            }),
+            frozenset({"MI(patient)"}),
+        )
+
+    def test_empty_consequent_no_match(self):
+        """jointCommitment requires a non-empty consequent."""
+        base = OntoMaterialBase(
+            language={"ChestPain(patient)", "ElevatedTroponin(patient)"},
+        )
+        base.register_joint_commitment(["ChestPain", "ElevatedTroponin"], "MI")
+        assert not base.is_axiom(
+            frozenset({"ChestPain(patient)", "ElevatedTroponin(patient)"}),
+            frozenset(),
+        )
+
+    def test_extra_consequent_no_match(self):
+        """Consequent must be exactly one concept."""
+        base = OntoMaterialBase(
+            language={"ChestPain(patient)", "ElevatedTroponin(patient)"},
+        )
+        base.register_joint_commitment(["ChestPain", "ElevatedTroponin"], "MI")
+        assert not base.is_axiom(
+            frozenset({"ChestPain(patient)", "ElevatedTroponin(patient)"}),
+            frozenset({"MI(patient)", "Extra(patient)"}),
+        )
+
+    def test_lazy_evaluation(self):
+        """Schema matches any individual without re-grounding."""
+        base = OntoMaterialBase(
+            language={
+                "ChestPain(alice)", "ElevatedTroponin(alice)",
+                "ChestPain(bob)", "ElevatedTroponin(bob)",
+            },
+        )
+        base.register_joint_commitment(["ChestPain", "ElevatedTroponin"], "MI")
+        for ind in ["alice", "bob"]:
+            assert base.is_axiom(
+                frozenset({f"ChestPain({ind})", f"ElevatedTroponin({ind})"}),
+                frozenset({f"MI({ind})"}),
+            )
+
+    def test_three_concepts(self):
+        """jointCommitment works with 3+ antecedent concepts."""
+        base = OntoMaterialBase(
+            language={"A(x)", "B(x)", "C(x)"},
+        )
+        base.register_joint_commitment(["A", "B", "C"], "D")
+        assert base.is_axiom(
+            frozenset({"A(x)", "B(x)", "C(x)"}),
+            frozenset({"D(x)"}),
+        )
+
+    def test_minimum_two_required(self):
+        """register_joint_commitment rejects fewer than 2 antecedent concepts."""
+        base = OntoMaterialBase()
+        with pytest.raises(ValueError, match="at least 2"):
+            base.register_joint_commitment(["ChestPain"], "MI")
+
+
+class TestJointCommitmentNonmonotonicity:
+    def test_extra_premise_defeats_inference(self):
+        base = OntoMaterialBase(
+            language={
+                "ChestPain(patient)",
+                "ElevatedTroponin(patient)",
+                "Antacid(patient)",
+            },
+        )
+        base.register_joint_commitment(["ChestPain", "ElevatedTroponin"], "MI")
+        r = NMMSReasoner(base, max_depth=15)
+        assert r.query(
+            frozenset({"ChestPain(patient)", "ElevatedTroponin(patient)"}),
+            frozenset({"MI(patient)"}),
+        )
+        assert not r.query(
+            frozenset({
+                "ChestPain(patient)",
+                "ElevatedTroponin(patient)",
+                "Antacid(patient)",
+            }),
+            frozenset({"MI(patient)"}),
+        )
+
+
+class TestJointCommitmentReasonerIntegration:
+    def test_ddt_through_joint_commitment(self):
+        """DDT: ChestPain(a) -> (ElevatedTroponin(a) -> MI(a)) derivable."""
+        base = OntoMaterialBase(
+            language={"ChestPain(patient)", "ElevatedTroponin(patient)"},
+        )
+        base.register_joint_commitment(["ChestPain", "ElevatedTroponin"], "MI")
+        r = NMMSReasoner(base, max_depth=25)
+        # {ChestPain(p), ElevatedTroponin(p)} |~ {MI(p)}
+        assert r.query(
+            frozenset({"ChestPain(patient)", "ElevatedTroponin(patient)"}),
+            frozenset({"MI(patient)"}),
+        )
+        # DDT: {ChestPain(p)} |~ {ElevatedTroponin(p) -> MI(p)}
+        assert r.query(
+            frozenset({"ChestPain(patient)"}),
+            frozenset({"ElevatedTroponin(patient) -> MI(patient)"}),
+        )
+
+    def test_interaction_with_subclass(self):
+        """jointCommitment + subClassOf coexist without interference."""
+        base = OntoMaterialBase(
+            language={"ChestPain(patient)", "ElevatedTroponin(patient)"},
+        )
+        base.register_joint_commitment(["ChestPain", "ElevatedTroponin"], "MI")
+        base.register_subclass("ChestPain", "Symptom")
+        r = NMMSReasoner(base, max_depth=15)
+        # jointCommitment still works
+        assert r.query(
+            frozenset({"ChestPain(patient)", "ElevatedTroponin(patient)"}),
+            frozenset({"MI(patient)"}),
+        )
+        # subClassOf still works
+        assert r.query(
+            frozenset({"ChestPain(patient)"}),
+            frozenset({"Symptom(patient)"}),
+        )
+
+
+class TestJointCommitmentNontransitivity:
+    def test_no_chain_with_subclass(self):
+        """jointCommitment({A,B}, C) + subClassOf(C, D) does NOT yield {A,B} |~ D."""
+        base = OntoMaterialBase(
+            language={"ChestPain(patient)", "ElevatedTroponin(patient)"},
+        )
+        base.register_joint_commitment(["ChestPain", "ElevatedTroponin"], "MI")
+        base.register_subclass("MI", "CardiacEvent")
+        r = NMMSReasoner(base, max_depth=15)
+        # Each individually holds
+        assert r.query(
+            frozenset({"ChestPain(patient)", "ElevatedTroponin(patient)"}),
+            frozenset({"MI(patient)"}),
+        )
+        assert r.query(
+            frozenset({"MI(patient)"}),
+            frozenset({"CardiacEvent(patient)"}),
+        )
+        # But chaining does NOT hold (no Mixed-Cut)
+        assert not r.query(
+            frozenset({"ChestPain(patient)", "ElevatedTroponin(patient)"}),
+            frozenset({"CardiacEvent(patient)"}),
         )

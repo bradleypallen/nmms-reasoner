@@ -42,6 +42,8 @@ Commands (ontology mode):
   tell schema disjointWith Man Woman  Register disjointWith schema
   tell schema disjointProperties hasChild hasParent
                                       Register disjointProperties schema
+  tell schema jointCommitment ChestPain,ElevatedTroponin MI
+                                      Register jointCommitment schema
   ask A => B                          Query derivability of a sequent
   show                                Display the current base
   show schemas                        Display registered schemas
@@ -183,6 +185,13 @@ def run_repl(args: argparse.Namespace) -> int:
                             f"  disjointProperties:"
                             f" {{{arg1}(x,y), {arg2}(x,y)}} |~"
                         )
+                    elif schema_type == "jointCommitment":
+                        concepts = arg1.split(",")
+                        ant_display = ", ".join(f"{c}(x)" for c in concepts)
+                        desc = (
+                            f"  jointCommitment:"
+                            f" {{{ant_display}}} |~ {{{arg2}(x)}}"
+                        )
                     else:
                         desc = f"  {schema_type}: {arg1} -> {arg2}"
                     if annotation:
@@ -301,6 +310,29 @@ def run_repl(args: argparse.Namespace) -> int:
                         if annotation:
                             msg += f" \u2014 {annotation}"
                         print(msg)
+                    elif parts[0] == "jointCommitment" and len(parts) == 3:
+                        _, jc_ant_str, jc_con = parts
+                        jc_concepts = jc_ant_str.split(",")
+                        if len(jc_concepts) < 2:
+                            print(
+                                "Error: jointCommitment requires at least 2 "
+                                "comma-separated antecedent concepts."
+                            )
+                        else:
+                            base.register_joint_commitment(
+                                jc_concepts, jc_con,
+                                annotation=annotation,
+                            )
+                            ant_display = ", ".join(
+                                f"{c}(x)" for c in jc_concepts
+                            )
+                            msg = (
+                                f"Registered jointCommitment schema:"
+                                f" {{{ant_display}}} |~ {{{jc_con}(x)}}"
+                            )
+                            if annotation:
+                                msg += f" \u2014 {annotation}"
+                            print(msg)
                     else:
                         print(
                             "Usage: tell schema subClassOf <sub> <super>\n"
@@ -308,7 +340,8 @@ def run_repl(args: argparse.Namespace) -> int:
                             "       tell schema domain <role> <concept>\n"
                             "       tell schema subPropertyOf <sub_role> <super_role>\n"
                             "       tell schema disjointWith <concept1> <concept2>\n"
-                            "       tell schema disjointProperties <role1> <role2>"
+                            "       tell schema disjointProperties <role1> <role2>\n"
+                            "       tell schema jointCommitment <C1,C2,...> <D>"
                         )
                 except (IndexError, ValueError) as e:
                     print(f"Error: {e}")

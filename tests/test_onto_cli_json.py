@@ -182,6 +182,65 @@ class TestOntoBatchDisjoint:
             Path(batch_path).unlink(missing_ok=True)
 
 
+class TestOntoBatchJointCommitment:
+    def test_tell_onto_batch_joint_commitment(self, onto_empty_base, capsys):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+            f.write("atom ChestPain(patient)\n")
+            f.write("atom ElevatedTroponin(patient)\n")
+            f.write("schema jointCommitment ChestPain,ElevatedTroponin MI\n")
+            batch_path = f.name
+
+        try:
+            rc = main(["tell", "-b", onto_empty_base, "--create", "--onto",
+                        "--batch", batch_path])
+            assert rc == 0
+
+            with open(onto_empty_base) as bf:
+                data = json.load(bf)
+            assert len(data["onto_schemas"]) == 1
+            assert data["onto_schemas"][0]["type"] == "jointCommitment"
+            assert data["onto_schemas"][0]["arg1"] == ["ChestPain", "ElevatedTroponin"]
+            assert data["onto_schemas"][0]["arg2"] == "MI"
+        finally:
+            Path(batch_path).unlink(missing_ok=True)
+
+    def test_tell_onto_batch_joint_commitment_json(self, onto_empty_base, capsys):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+            f.write("atom ChestPain(patient)\n")
+            f.write('schema jointCommitment ChestPain,ElevatedTroponin MI "MI rule"\n')
+            batch_path = f.name
+
+        try:
+            rc = main(["tell", "-b", onto_empty_base, "--create", "--onto",
+                        "--json", "--batch", batch_path])
+            assert rc == 0
+            out = capsys.readouterr().out
+            lines = [line for line in out.strip().split("\n") if line]
+            schema_line = json.loads(lines[1])
+            assert schema_line["action"] == "registered_jointCommitment_schema"
+            assert schema_line["annotation"] == "MI rule"
+        finally:
+            Path(batch_path).unlink(missing_ok=True)
+
+    def test_tell_onto_batch_joint_commitment_annotation_round_trip(
+        self, onto_empty_base,
+    ):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+            f.write('schema jointCommitment A,B D "Test annotation"\n')
+            batch_path = f.name
+
+        try:
+            rc = main(["tell", "-b", onto_empty_base, "--create", "--onto",
+                        "--batch", batch_path])
+            assert rc == 0
+
+            with open(onto_empty_base) as bf:
+                data = json.load(bf)
+            assert data["onto_schemas"][0]["annotation"] == "Test annotation"
+        finally:
+            Path(batch_path).unlink(missing_ok=True)
+
+
 class TestOntoAnnotations:
     def test_onto_annotation_round_trip(self, onto_empty_base):
         main(["tell", "-b", onto_empty_base, "--create", "--onto",

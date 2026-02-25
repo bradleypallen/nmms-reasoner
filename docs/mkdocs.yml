@@ -42,6 +42,7 @@ nav:
   - Theory:
       - NMMS Calculus: theory/nmms-calculus.md
       - Ontology Extension: theory/onto-extension.md
+      - Querying and Entitlement: theory/querying-and-entitlement.md
 
 markdown_extensions:
   - admonition

@@ -50,6 +50,14 @@ class TestOntoLogging:
             base.register_disjoint_properties("hasChild", "hasParent")
         assert any("disjointProperties" in msg for msg in caplog.messages)
 
+    def test_joint_commitment_schema_logged(self, caplog):
+        base = OntoMaterialBase(
+            language={"ChestPain(patient)", "ElevatedTroponin(patient)"},
+        )
+        with caplog.at_level(logging.DEBUG, logger="pynmms.onto.base"):
+            base.register_joint_commitment(["ChestPain", "ElevatedTroponin"], "MI")
+        assert any("jointCommitment" in msg for msg in caplog.messages)
+
 
 class TestOntoProofTraces:
     def test_propositional_rules_in_trace(self):

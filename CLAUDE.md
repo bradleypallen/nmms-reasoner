@@ -38,7 +38,7 @@ Uses Python 3.10+ standard library only (no runtime dependencies). Dev dependenc
 
 ## Theoretical Foundation
 
-This implements the NMMS sequent calculus from Hlobil & Brandom 2025 (Ch. 3, "Introducing Logical Vocabulary"). The `pynmms` package implements propositional NMMS in the core and **ontology axiom schemas** (subClassOf, range, domain, subPropertyOf, disjointWith, disjointProperties) in the `pynmms.onto` subpackage.
+This implements the NMMS sequent calculus from Hlobil & Brandom 2025 (Ch. 3, "Introducing Logical Vocabulary"). The `pynmms` package implements propositional NMMS in the core and **ontology axiom schemas** (subClassOf, range, domain, subPropertyOf, disjointWith, disjointProperties, jointCommitment) in the `pynmms.onto` subpackage.
 
 ### The NMMS Framework
 
@@ -86,17 +86,18 @@ These biconditionals are what make logical vocabulary "make explicit" reason rel
 
 ### Ontology Extension (`src/pynmms/onto/`)
 
-The `pynmms.onto` subpackage extends propositional NMMS with ontology axiom schemas — schema-level macros for material inferential commitments and incompatibilities. Instead of adding proof rules, it enriches the material base with six unanchored axiom schema types that are evaluated lazily at query time.
+The `pynmms.onto` subpackage extends propositional NMMS with ontology axiom schemas — schema-level macros for material inferential commitments and incompatibilities. Instead of adding proof rules, it enriches the material base with seven unanchored axiom schema types that are evaluated lazily at query time.
 
 1. **`onto/syntax.py`** — `OntoSentence` frozen dataclass (types: `ATOM_CONCEPT`, `ATOM_ROLE`). `parse_onto_sentence()` tries binary connectives first, then ontology patterns (role assertions, concept assertions). Bare propositional atoms are rejected.
 
-2. **`onto/base.py`** — `OntoMaterialBase(MaterialBase)` adds vocabulary tracking (`_individuals`, `_concepts`, `_roles`) and six ontology schema types:
+2. **`onto/base.py`** — `OntoMaterialBase(MaterialBase)` adds vocabulary tracking (`_individuals`, `_concepts`, `_roles`) and seven ontology schema types:
    - **subClassOf(C, D)**: `{C(x)} |~ {D(x)}` for any individual x
    - **range(R, C)**: `{R(x,y)} |~ {C(y)}` for any x, y
    - **domain(R, C)**: `{R(x,y)} |~ {C(x)}` for any x, y
    - **subPropertyOf(R, S)**: `{R(x,y)} |~ {S(x,y)}` for any x, y
    - **disjointWith(C, D)**: `{C(x), D(x)} |~` for any individual x (material incompatibility)
    - **disjointProperties(R, S)**: `{R(x,y), S(x,y)} |~` for any x, y (material incompatibility)
+   - **jointCommitment([C1,...,Cn], D)**: `{C1(x),...,Cn(x)} |~ {D(x)}` for any x (joint inferential commitment, min 2 antecedents)
    All use exact match (no weakening). `CommitmentStore` provides a higher-level API.
 
    **No separate reasoner** — the base `NMMSReasoner` works transparently with `OntoMaterialBase` because ontology schemas extend `is_axiom()`, not the proof rules.
@@ -110,7 +111,7 @@ The `pynmms.onto` subpackage extends propositional NMMS with ontology axiom sche
 
 ## Test Suite
 
-483 tests across 20 test files:
+512 tests across 20 test files:
 
 **Propositional core (307 tests, 13 files):**
 - `test_syntax.py` — parser unit tests
@@ -126,10 +127,10 @@ The `pynmms.onto` subpackage extends propositional NMMS with ontology axiom sche
 - `test_cli_json.py` — JSON output, quiet mode, stdin, batch, exit codes, empty sides, annotations, Toy Base T integration
 - `test_logging.py` — proof trace and logging output
 
-**Ontology extension (176 tests, 7 files):**
+**Ontology extension (205 tests, 7 files):**
 - `test_onto_syntax.py` — ontology sentence parsing (concept/role assertions), atomicity checks
 - `test_onto_base.py` — OntoMaterialBase construction, validation, ontology schemas, CommitmentStore
-- `test_onto_schemas.py` — all 6 ontology schema types, nonmonotonicity, non-transitivity, lazy evaluation, NMMSReasoner integration
+- `test_onto_schemas.py` — all 7 ontology schema types, nonmonotonicity, non-transitivity, lazy evaluation, NMMSReasoner integration
 - `test_onto_cli.py` — `--onto` flag with tell/ask/repl
 - `test_onto_cli_json.py` — ontology-specific tests for JSON output, exit codes, batch, annotations
 - `test_onto_legacy_equivalence.py` — propositional backward compat, medical concept/role, ontology schema equivalence

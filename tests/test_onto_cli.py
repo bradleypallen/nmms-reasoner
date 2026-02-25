@@ -201,3 +201,23 @@ class TestOntoReplCommand:
         assert result == 0
         out = capsys.readouterr().out
         assert "All men are mortal" in out
+
+    def test_repl_onto_schema_joint_commitment(self, capsys):
+        result = self._run_repl([
+            "tell schema jointCommitment ChestPain,ElevatedTroponin MI",
+            "show schemas",
+        ])
+        assert result == 0
+        out = capsys.readouterr().out
+        assert "jointCommitment" in out
+        assert "ChestPain(x)" in out
+        assert "MI(x)" in out
+
+    def test_repl_onto_schema_joint_commitment_annotation(self, capsys):
+        result = self._run_repl([
+            'tell schema jointCommitment ChestPain,ElevatedTroponin MI "Joint MI rule"',
+            "show schemas",
+        ])
+        assert result == 0
+        out = capsys.readouterr().out
+        assert "Joint MI rule" in out

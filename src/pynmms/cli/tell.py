@@ -326,6 +326,30 @@ def _process_onto_schema_line(
                     msg += f" \u2014 {annotation}"
                 print(msg)
             return EXIT_SUCCESS
+        elif len(parts) >= 4 and parts[1] == "jointCommitment":
+            _, _, ant_str, consequent = parts[:4]
+            antecedent_concepts = ant_str.split(",")
+            if len(antecedent_concepts) < 2:
+                emit_error(
+                    "jointCommitment requires at least 2 comma-separated "
+                    "antecedent concepts.",
+                    json_mode=json_mode, quiet=quiet,
+                )
+                return EXIT_ERROR
+            base.register_joint_commitment(
+                antecedent_concepts, consequent, annotation=annotation,
+            )
+            ant_display = ", ".join(f"{c}(x)" for c in antecedent_concepts)
+            details = f"{{{ant_display}}} |~ {{{consequent}(x)}}"
+            if json_mode:
+                emit_json(tell_schema_response(
+                    "jointCommitment", details, str(base_path), annotation=annotation))
+            elif not quiet:
+                msg = f"Registered jointCommitment schema: {details}"
+                if annotation:
+                    msg += f" \u2014 {annotation}"
+                print(msg)
+            return EXIT_SUCCESS
         else:
             emit_error(f"Invalid schema line: {line!r}", json_mode=json_mode, quiet=quiet)
             return EXIT_ERROR

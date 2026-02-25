@@ -1,9 +1,9 @@
 """Ontology Material Base -- ontology axiom schemas for NMMS.
 
 Extends the propositional ``MaterialBase`` with ontology-style vocabulary
-tracking (individuals, concepts, roles) and six defeasible axiom schema
+tracking (individuals, concepts, roles) and seven defeasible axiom schema
 types: subClassOf, range, domain, subPropertyOf, disjointWith,
-disjointProperties.
+disjointProperties, jointCommitment.
 """
 
 from __future__ import annotations
@@ -40,9 +40,9 @@ class OntoMaterialBase(MaterialBase):
     """A material base for NMMS with ontology axiom schemas.
 
     Extends ``MaterialBase`` to accept concept/role assertions as atomic,
-    track vocabulary (individuals, concepts, roles), and support six
+    track vocabulary (individuals, concepts, roles), and support seven
     ontology axiom schema types: subClassOf, range, domain, subPropertyOf,
-    disjointWith, disjointProperties.
+    disjointWith, disjointProperties, jointCommitment.
 
     Schemas are evaluated lazily at query time -- not grounded over known
     individuals. All use exact match (no weakening) to preserve
@@ -241,6 +241,31 @@ class OntoMaterialBase(MaterialBase):
             "Registered disjointProperties schema: %s ⊥ %s", role1, role2
         )
 
+    def register_joint_commitment(
+        self,
+        antecedent_concepts: list[str],
+        consequent_concept: str,
+        annotation: str | None = None,
+    ) -> None:
+        """Register jointCommitment schema: {C1(x), ..., Cn(x)} |~_B {D(x)} for any x.
+
+        Joint material inferential commitment from multiple concepts to a
+        consequent concept.  Requires at least 2 antecedent concepts (with 1,
+        use ``register_subclass`` instead).  Stored lazily.
+        """
+        if len(antecedent_concepts) < 2:
+            raise ValueError(
+                "jointCommitment requires at least 2 antecedent concepts "
+                "(use subClassOf for a single antecedent)."
+            )
+        arg1 = ",".join(antecedent_concepts)
+        self._onto_schemas.append(("jointCommitment", arg1, consequent_concept, annotation))
+        logger.debug(
+            "Registered jointCommitment schema: {%s} |~ {%s}",
+            ", ".join(f"{c}(x)" for c in antecedent_concepts),
+            f"{consequent_concept}(x)",
+        )
+
     # --- Axiom check (overrides parent) ---
 
     def is_axiom(self, gamma: frozenset[str], delta: frozenset[str]) -> bool:
@@ -269,6 +294,7 @@ class OntoMaterialBase(MaterialBase):
         Exact match (no weakening) preserves nonmonotonicity.
         Inference schemas: len(gamma) == 1, len(delta) == 1.
         Incompatibility schemas: len(gamma) == 2, len(delta) == 0.
+        Joint commitment schemas: len(gamma) >= 2, len(delta) == 1.
         """
         # --- Inference schemas: singleton antecedent, singleton consequent ---
         if len(gamma) == 1 and len(delta) == 1:
@@ -372,6 +398,48 @@ class OntoMaterialBase(MaterialBase):
 
             return False
 
+        # --- Joint commitment schemas: multi-element antecedent, singleton consequent ---
+        if len(gamma) >= 2 and len(delta) == 1:
+            delta_str = next(iter(delta))
+
+            try:
+                delta_parsed = parse_onto_sentence(delta_str)
+            except ValueError:
+                return False
+
+            if not isinstance(delta_parsed, OntoSentence):
+                return False
+            if delta_parsed.type != ATOM_CONCEPT:
+                return False
+
+            # Parse all gamma elements -- all must be concept assertions
+            gamma_parsed_list: list[OntoSentence] = []
+            for g_str in gamma:
+                try:
+                    g_parsed = parse_onto_sentence(g_str)
+                except ValueError:
+                    return False
+                if not isinstance(g_parsed, OntoSentence):
+                    return False
+                if g_parsed.type != ATOM_CONCEPT:
+                    return False
+                gamma_parsed_list.append(g_parsed)
+
+            # All gamma elements must share the same individual as delta
+            target_individual = delta_parsed.individual
+            if not all(g.individual == target_individual for g in gamma_parsed_list):
+                return False
+
+            gamma_concepts = {g.concept for g in gamma_parsed_list}
+
+            for schema_type, arg1, arg2, _annotation in self._onto_schemas:
+                if schema_type == "jointCommitment":
+                    schema_concepts = set(arg1.split(","))
+                    if gamma_concepts == schema_concepts and delta_parsed.concept == arg2:
+                        return True
+
+            return False
+
         return False
 
     # --- Serialization ---
@@ -382,15 +450,17 @@ class OntoMaterialBase(MaterialBase):
         base_dict["individuals"] = sorted(self._individuals)
         base_dict["concepts"] = sorted(self._concepts)
         base_dict["roles"] = sorted(self._roles)
-        base_dict["onto_schemas"] = [
-            {
+        onto_schema_list = []
+        for schema_type, arg1, arg2, annotation in self._onto_schemas:
+            entry: dict[str, str | list[str]] = {
                 "type": schema_type,
-                "arg1": arg1,
+                "arg1": arg1.split(",") if schema_type == "jointCommitment" else arg1,
                 "arg2": arg2,
-                **({"annotation": annotation} if annotation else {}),
             }
-            for schema_type, arg1, arg2, annotation in self._onto_schemas
-        ]
+            if annotation:
+                entry["annotation"] = annotation
+            onto_schema_list.append(entry)
+        base_dict["onto_schemas"] = onto_schema_list
         return base_dict
 
     @classmethod
@@ -409,9 +479,13 @@ class OntoMaterialBase(MaterialBase):
         # Restore ontology schemas
         schemas_data = data.get("onto_schemas", [])
         for schema in schemas_data:
+            arg1 = schema["arg1"]
+            # jointCommitment stores arg1 as a list in JSON; join for internal repr
+            if isinstance(arg1, list):
+                arg1 = ",".join(arg1)
             base._onto_schemas.append((
                 schema["type"],
-                schema["arg1"],
+                arg1,
                 schema["arg2"],
                 schema.get("annotation"),
             ))
@@ -520,6 +594,22 @@ class CommitmentStore:
         self._onto_commitments.append((source, "disjointProperties", role1, role2))
         self._base = None
 
+    def commit_joint_commitment(
+        self,
+        source: str,
+        antecedent_concepts: list[str],
+        consequent_concept: str,
+    ) -> None:
+        """Record a jointCommitment commitment: {C1(x), ..., Cn(x)} |~ {D(x)}."""
+        if len(antecedent_concepts) < 2:
+            raise ValueError(
+                "jointCommitment requires at least 2 antecedent concepts "
+                "(use subClassOf for a single antecedent)."
+            )
+        arg1 = ",".join(antecedent_concepts)
+        self._onto_commitments.append((source, "jointCommitment", arg1, consequent_concept))
+        self._base = None
+
     def commit_defeasible_rule(
         self,
         source: str,
@@ -570,6 +660,8 @@ class CommitmentStore:
                 self._base.register_disjoint(arg1, arg2)
             elif schema_type == "disjointProperties":
                 self._base.register_disjoint_properties(arg1, arg2)
+            elif schema_type == "jointCommitment":
+                self._base.register_joint_commitment(arg1.split(","), arg2)
 
         return self._base
 
@@ -593,6 +685,10 @@ class CommitmentStore:
                 pattern = f"{arg1}(x), {arg2}(x) |~"
             elif schema_type == "disjointProperties":
                 pattern = f"{arg1}(x,y), {arg2}(x,y) |~"
+            elif schema_type == "jointCommitment":
+                concepts = arg1.split(",")
+                ant_str = ", ".join(f"{c}(x)" for c in concepts)
+                pattern = f"{ant_str} |~ {arg2}(x)"
             else:
                 pattern = f"{arg1} -> {arg2}"  # pragma: no cover
             lines.append(f"    [{source}] {schema_type}: {pattern}")
