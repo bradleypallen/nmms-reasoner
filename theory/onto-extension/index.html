@@ -16,6 +16,8 @@
         <link rel="prev" href="../nmms-calculus/">
       
       
+        <link rel="next" href="../querying-and-entitlement/">
+      
       
         
       
@@ -964,6 +966,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#37-jointcommitmentc1-cn-d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7 jointCommitment([C1, ..., Cn], D)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1133,6 +1146,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../querying-and-entitlement/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Querying and Entitlement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1277,6 +1318,17 @@
     <span class="md-ellipsis">
       
         3.6 disjointProperties(R, S)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#37-jointcommitmentc1-cn-d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7 jointCommitment([C1, ..., Cn], D)
       
     </span>
   </a>
@@ -1463,11 +1515,11 @@
 <h1 id="the-nmms_onto-extension-schema-level-macros-for-material-inferential-commitments">The NMMS_Onto Extension: Schema-Level Macros for Material Inferential Commitments<a class="headerlink" href="#the-nmms_onto-extension-schema-level-macros-for-material-inferential-commitments" title="Permanent link">&para;</a></h1>
 <h2 id="1-introduction">1. Introduction<a class="headerlink" href="#1-introduction" title="Permanent link">&para;</a></h2>
 <p>NMMS (Non-Monotonic Multi-Succedent) provides a proof-theoretic framework for codifying <strong>open reason relations</strong> -- consequence relations where Monotonicity ([Weakening]) and Transitivity ([Mixed-Cut]) can fail. Hlobil &amp; Brandom (2025), Chapter 3 ("Introducing Logical Vocabulary"), develops the propositional fragment: a sequent calculus whose eight Ketonen-style rules extend an arbitrary material base B = <L_B, |~_B> to a full propositional consequence relation |~. The calculus enjoys Supraclassicality, Conservative Extension, Invertibility, and a Projection theorem reducing derivability to base-level axiom checking.</p>
-<p>NMMS_Onto is an <strong>ontology engineering extension</strong> that enriches the material base with schema-level macros for expressing material inferential commitments and incompatibilities. The extension adds no new proof rules: the same eight propositional rules apply unchanged. Instead, six ontology schema types -- <code>subClassOf</code>, <code>range</code>, <code>domain</code>, <code>subPropertyOf</code>, <code>disjointWith</code>, <code>disjointProperties</code> -- are registered as schematic patterns that the material base evaluates lazily when checking whether a sequent is an axiom. Because the extension operates entirely at the level of the base, all of Hlobil's proofs for the propositional calculus are preserved without modification.</p>
+<p>NMMS_Onto is an <strong>ontology engineering extension</strong> that enriches the material base with schema-level macros for expressing material inferential commitments and incompatibilities. The extension adds no new proof rules: the same eight propositional rules apply unchanged. Instead, seven ontology schema types -- <code>subClassOf</code>, <code>range</code>, <code>domain</code>, <code>subPropertyOf</code>, <code>disjointWith</code>, <code>disjointProperties</code>, <code>jointCommitment</code> -- are registered as schematic patterns that the material base evaluates lazily when checking whether a sequent is an axiom. Because the extension operates entirely at the level of the base, all of Hlobil's proofs for the propositional calculus are preserved without modification.</p>
 <p>The vocabulary is borrowed from W3C RDFS and OWL for familiarity, but the semantics are those of NMMS: exact-match defeasibility, no weakening, no transitivity. These are not limitations to be worked around -- they are the defining features of the NMMS framework that make it suitable for modeling open reason relations.</p>
 <p>The resulting system, NMMS_Onto, occupies a distinctive niche: it supports defeasible ontological reasoning (class hierarchies, role constraints, property hierarchies, concept and property incompatibilities) within a framework where adding premises can defeat inferences and chaining good inferences can yield bad ones -- precisely the features that distinguish NMMS from classical and monotonic nonclassical logics.</p>
 <h3 id="11-discursive-context-schemas-in-the-game-of-giving-and-asking-for-reasons">1.1 Discursive Context: Schemas in the Game of Giving and Asking for Reasons<a class="headerlink" href="#11-discursive-context-schemas-in-the-game-of-giving-and-asking-for-reasons" title="Permanent link">&para;</a></h3>
-<p>The intended use of NMMS_Onto is modeling <strong>ontological commitments</strong> within a <strong>game of giving and asking for reasons</strong> (Brandom 1994). The six schema types capture common patterns of <strong>classificatory discursive practice</strong>: asserting that something falls under a concept (<code>subClassOf</code>), that a role relates two individuals (<code>range</code>, <code>domain</code>, <code>subPropertyOf</code>), and that certain commitments are materially incompatible (<code>disjointWith</code>, <code>disjointProperties</code>). These are not abstract formal specifications imposed from outside -- they codify the inferential commitments that competent practitioners undertake when they classify, relate, and distinguish things in a domain.</p>
+<p>The intended use of NMMS_Onto is modeling <strong>ontological commitments</strong> within a <strong>game of giving and asking for reasons</strong> (Brandom 1994). The seven schema types capture common patterns of <strong>classificatory discursive practice</strong>: asserting that something falls under a concept (<code>subClassOf</code>), that a role relates two individuals (<code>range</code>, <code>domain</code>, <code>subPropertyOf</code>), that certain commitments are materially incompatible (<code>disjointWith</code>, <code>disjointProperties</code>), and that multiple commitments jointly entail a further commitment (<code>jointCommitment</code>). These are not abstract formal specifications imposed from outside -- they codify the inferential commitments that competent practitioners undertake when they classify, relate, and distinguish things in a domain.</p>
 <p>When coupled with a dialogue system like <strong>Elenchus</strong>, the schemas provide the <strong>structured vocabulary layer</strong> that lets the system recognize classificatory patterns in a respondent's natural language commitments and map them to material inferential commitments in the base. A respondent who asserts "Socrates is a man" undertakes a commitment that Elenchus can recognize as an instance of <code>Man(socrates)</code>, which then interacts with registered schemas (e.g., <code>subClassOf(Man, Mortal)</code>) to determine what further commitments the respondent is committed to and what commitments would be incompatible with what they have asserted.</p>
 <p>This positions NMMS_Onto not as a standalone formal ontology specification language but as a component of a larger <strong>inferentialist knowledge engineering practice</strong> -- one where ontological structure is articulated through the material inferential commitments that practitioners recognize, rather than through model-theoretic stipulation of what exists.</p>
 <h2 id="2-design-decision-axiom-extensions-not-proof-rules">2. Design Decision: Axiom Extensions, Not Proof Rules<a class="headerlink" href="#2-design-decision-axiom-extensions-not-proof-rules" title="Permanent link">&para;</a></h2>
@@ -1482,7 +1534,7 @@
 </li>
 </ul>
 <p>Hlobil's Chapter 3 proofs -- Supraclassicality (Fact 2), Conservative Extension (Fact 3 / Prop. 26), Invertibility (Prop. 27), and the Projection Theorem (Theorem 7) -- are established for <strong>any</strong> material base satisfying the Containment axiom (Definition 1). The proofs make no assumptions about the internal structure of base-level axioms beyond Containment. This means that any extension of |~_B that preserves Containment automatically inherits all of these results.</p>
-<p>NMMS_Onto exploits this observation. The six ontology schemas add new pairs to the base consequence relation |~_B. Each schema generates axioms of the form {s} |~ {t} (for inferential commitment schemas) or {s, t} |~ {} (for incompatibility schemas) where s and t are atomic sentences. Since the inferential commitment schemas produce pairs with disjoint singleton antecedent and consequent sets, and the incompatibility schemas produce pairs with empty consequent, none of these conflict with Containment (which only requires that overlapping pairs be included). The schemas therefore extend |~_B while preserving Containment, and all of Hlobil's metatheoretic results carry over without any additional proof work.</p>
+<p>NMMS_Onto exploits this observation. The seven ontology schemas add new pairs to the base consequence relation |~_B. Each schema generates axioms of the form {s} |~ {t} (for inferential commitment schemas) or {s, t} |~ {} (for incompatibility schemas) where s and t are atomic sentences. Since the inferential commitment schemas produce pairs with disjoint singleton antecedent and consequent sets, and the incompatibility schemas produce pairs with empty consequent, none of these conflict with Containment (which only requires that overlapping pairs be included). The schemas therefore extend |~_B while preserving Containment, and all of Hlobil's metatheoretic results carry over without any additional proof work.</p>
 <p>By contrast, introducing new <strong>proof rules</strong> -- for instance, unrestricted quantifier rules [forall-L], [forall-R], [exists-L], [exists-R] -- would modify the internal structure of proof trees. This would require:</p>
 <ol>
 <li>Re-establishing Invertibility for the new rules.</li>
@@ -1500,7 +1552,7 @@
 <li><strong>Role assertions</strong>: <code>R(a,b)</code> -- individual <code>a</code> stands in role <code>R</code> to individual <code>b</code>. Examples: <code>hasChild(alice,bob)</code>, <code>hasSymptom(patient,chestPain)</code>.</li>
 </ul>
 <p><strong>TBox schemas</strong> (schema-level macros for material inferential commitments and incompatibilities):</p>
-<p>The TBox consists of six ontology schema types. Each schema is evaluated lazily at query time -- not eagerly grounded over all known individuals. All schemas use <strong>exact match</strong> (no weakening), which is what preserves nonmonotonicity.</p>
+<p>The TBox consists of seven ontology schema types. Each schema is evaluated lazily at query time -- not eagerly grounded over all known individuals. All schemas use <strong>exact match</strong> (no weakening), which is what preserves nonmonotonicity.</p>
 <h3 id="31-subclassofc-d">3.1 subClassOf(C, D)<a class="headerlink" href="#31-subclassofc-d" title="Permanent link">&para;</a></h3>
 <p><strong>Schema</strong>: For any individual x,</p>
 <div class="highlight"><pre><span></span><code>{C(x)} |~_B {D(x)}
@@ -1538,6 +1590,13 @@
 </code></pre></div>
 <p><strong>Intended reading</strong>: Standing in role R and role S to the same pair of individuals is materially incompatible.</p>
 <p><strong>Example</strong>: <code>disjointProperties(employs, isEmployedBy)</code> generates <code>{employs(alice,bob), isEmployedBy(alice,bob)} |~ {}</code> -- alice cannot both employ bob and be employed by bob.</p>
+<h3 id="37-jointcommitmentc1-cn-d">3.7 jointCommitment([C1, ..., Cn], D)<a class="headerlink" href="#37-jointcommitmentc1-cn-d" title="Permanent link">&para;</a></h3>
+<p><strong>Schema</strong>: For any individual x,</p>
+<div class="highlight"><pre><span></span><code>{C1(x), ..., Cn(x)} |~_B {D(x)}
+</code></pre></div>
+<p><strong>Intended reading</strong>: Being a C1, a C2, ..., and a Cn jointly carry a defeasible material inferential commitment to being a D. This is the inferential counterpart of <code>disjointWith</code>: where <code>disjointWith</code> encodes multi-premise incompatibility (empty consequent), <code>jointCommitment</code> encodes multi-premise inference (non-empty consequent).</p>
+<p><strong>Minimum arity</strong>: At least 2 antecedent concepts are required. With a single antecedent concept, <code>subClassOf</code> should be used instead.</p>
+<p><strong>Example</strong>: <code>jointCommitment([ChestPain, ElevatedTroponin], MI)</code> generates <code>{ChestPain(patient), ElevatedTroponin(patient)} |~ {MI(patient)}</code> -- if a patient has chest pain and elevated troponin, then the patient (defeasibly) has a myocardial infarction. Adding a third premise (e.g., <code>Antacid(patient)</code>) defeats the inference, because the antecedent no longer exactly matches the schema pattern.</p>
 <h2 id="4-containment-preservation">4. Containment Preservation<a class="headerlink" href="#4-containment-preservation" title="Permanent link">&para;</a></h2>
 <p><strong>Claim</strong>: If B = <L_B, |~_B> satisfies Containment, then the extended base B_Onto = <L_B, |~_B union S_ground> also satisfies Containment, where S_ground denotes the set of all ground instances of the registered ontology schemas.</p>
 <p><strong>Proof sketch</strong>: Containment requires that Gamma |~_B Delta whenever Gamma intersection Delta is nonempty. We must show two things:</p>
@@ -1546,7 +1605,7 @@
 <p><strong>The original Containment pairs are preserved</strong>: B_Onto extends |~_B, so all original pairs remain.</p>
 </li>
 <li>
-<p><strong>The new schema pairs do not violate Containment</strong>: Each inferential commitment schema adds pairs of the form ({s}, {t}) where s and t are distinct atomic sentences (e.g., s = <code>Man(socrates)</code> and t = <code>Mortal(socrates)</code> for a subClassOf schema). Since s != t, we have {s} intersection {t} = empty, so these pairs are in the region where Containment is silent. Each incompatibility schema adds pairs of the form ({s, t}, {}) where s and t are distinct atomic sentences. Since the consequent is empty, {s, t} intersection {} = empty, so again Containment is silent. Adding pairs where Containment is silent cannot violate the requirement that pairs with nonempty intersection are included.</p>
+<p><strong>The new schema pairs do not violate Containment</strong>: Each inferential commitment schema adds pairs of the form ({s}, {t}) where s and t are distinct atomic sentences (e.g., s = <code>Man(socrates)</code> and t = <code>Mortal(socrates)</code> for a subClassOf schema). Since s != t, we have {s} intersection {t} = empty, so these pairs are in the region where Containment is silent. Each incompatibility schema adds pairs of the form ({s, t}, {}) where s and t are distinct atomic sentences. Since the consequent is empty, {s, t} intersection {} = empty, so again Containment is silent. Each jointCommitment schema adds pairs of the form ({s1, ..., sn}, {t}) where the si are distinct concept assertions and t is a concept assertion with a different concept name; since the antecedent concepts differ from the consequent concept, the antecedent and consequent sets are disjoint, so Containment is again silent. Adding pairs where Containment is silent cannot violate the requirement that pairs with nonempty intersection are included.</p>
 </li>
 </ol>
 <p>More precisely, Containment states: for all Gamma, Delta in P(L_B), if Gamma intersection Delta != empty then Gamma |~_B Delta. The ontology schemas only add pairs where the intersection <strong>is</strong> empty. So the condition "if Gamma intersection Delta != empty then Gamma |~_B Delta" is unaffected: the "if" side is unchanged (no new Gamma, Delta with nonempty intersection are introduced that were not already covered), and the "then" side is only strengthened (more pairs are in |~_B, not fewer).</p>
@@ -1606,7 +1665,7 @@
 <ul>
 <li><strong>Conciseness</strong>: A single <code>subClassOf(Man, Mortal)</code> schema replaces potentially many ground axioms <code>{Man(socrates)} |~ {Mortal(socrates)}</code>, <code>{Man(plato)} |~ {Mortal(plato)}</code>, etc.</li>
 <li><strong>Open-endedness</strong>: Schemas apply to individuals not yet known at registration time. When a new individual appears in the language, the schema automatically generates the corresponding axiom without explicit registration.</li>
-<li><strong>Ontological vocabulary</strong>: The schema names (<code>subClassOf</code>, <code>range</code>, <code>domain</code>, <code>subPropertyOf</code>, <code>disjointWith</code>, <code>disjointProperties</code>) provide a familiar vocabulary for expressing common patterns of material inferential commitment and incompatibility.</li>
+<li><strong>Ontological vocabulary</strong>: The schema names (<code>subClassOf</code>, <code>range</code>, <code>domain</code>, <code>subPropertyOf</code>, <code>disjointWith</code>, <code>disjointProperties</code>, <code>jointCommitment</code>) provide a familiar vocabulary for expressing common patterns of material inferential commitment and incompatibility.</li>
 </ul>
 <p>But the underlying reasoning mechanism is unchanged: the same eight Ketonen-style propositional rules, the same backward proof search, the same axiom checking. The schemas simply expand the set of pairs that count as axioms.</p>
 <h2 id="7-what-nmms_onto-does-not-include">7. What NMMS_Onto Does NOT Include<a class="headerlink" href="#7-what-nmms_onto-does-not-include" title="Permanent link">&para;</a></h2>
@@ -1656,7 +1715,7 @@
 <p><strong>NMMS and KLM as different normative projects</strong>: The defeasible description logic literature (Casini &amp; Straccia 2010, Giordano et al. 2013) works with preferential and rational consequence relations from the KLM framework. NMMS and KLM are asking <strong>different questions</strong>. KLM asks what a rational agent should believe by default -- it models defeasible inference through preferential models and rational closure, where exceptions are handled by minimizing abnormality. NMMS asks what an agent is <strong>committed to</strong> given specific reasons -- it codifies material inferential commitments, not default beliefs. The two frameworks operate at different levels of the normative landscape: KLM at the level of idealized rational belief revision, NMMS at the level of discursive practice and the commitments one undertakes in making assertions. The interesting question is not embedding one framework in the other but understanding what each makes explicit about reasoning practice.</p>
 </li>
 <li>
-<p><strong>Adequacy as a question about discursive practice, not model correspondence</strong>: In an inferentialist framework, <strong>the proof theory is the semantics</strong> -- meaning is constituted by inferential role, not by correspondence to model-theoretic structures. The question of completeness relative to a model-theoretic semantics presupposes that meaning is fixed by models, which is precisely what inferentialism rejects. The more appropriate question for NMMS_Onto is whether the six schema types adequately capture the material inferential commitments that competent practitioners would recognize as constitutive of ontological vocabulary -- whether <code>subClassOf</code>, <code>range</code>, <code>domain</code>, <code>subPropertyOf</code>, <code>disjointWith</code>, and <code>disjointProperties</code> suffice for the classificatory discursive practices one encounters in knowledge engineering. This is an empirical question about discursive practice, not a mathematical question about model correspondence.</p>
+<p><strong>Adequacy as a question about discursive practice, not model correspondence</strong>: In an inferentialist framework, <strong>the proof theory is the semantics</strong> -- meaning is constituted by inferential role, not by correspondence to model-theoretic structures. The question of completeness relative to a model-theoretic semantics presupposes that meaning is fixed by models, which is precisely what inferentialism rejects. The more appropriate question for NMMS_Onto is whether the seven schema types adequately capture the material inferential commitments that competent practitioners would recognize as constitutive of ontological vocabulary -- whether <code>subClassOf</code>, <code>range</code>, <code>domain</code>, <code>subPropertyOf</code>, <code>disjointWith</code>, <code>disjointProperties</code>, and <code>jointCommitment</code> suffice for the classificatory discursive practices one encounters in knowledge engineering. This is an empirical question about discursive practice, not a mathematical question about model correspondence.</p>
 </li>
 <li>
 <p><strong>Scaling properties</strong>: The lazy evaluation strategy avoids combinatorial explosion in schema grounding, but the proof search itself has exponential worst-case complexity (due to the multi-premise Ketonen rules for [L-&gt;], [L|], [R&amp;]). How does the addition of ontology schemas affect proof search performance in practice? Are there heuristics for ordering schema checks to improve average-case behavior?</p>

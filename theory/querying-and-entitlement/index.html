@@ -1,0 +1,1703 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="An automated reasoner for the Non-Monotonic Multi-Succedent (NMMS) propositional sequent calculus">
+      
+      
+      
+        <link rel="canonical" href="https://bradleypallen.github.io/pyNMMS/theory/querying-and-entitlement/">
+      
+      
+        <link rel="prev" href="../onto-extension/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>Querying and Entitlement - pyNMMS</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#querying-entitlement-and-the-dialogue-layer" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="pyNMMS" class="md-header__button md-logo" aria-label="pyNMMS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pyNMMS
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Querying and Entitlement
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-hidden="true"  type="radio" name="__palette" id="__palette_0">
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="pyNMMS" class="md-nav__button md-logo" aria-label="pyNMMS" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    pyNMMS
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorial
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorial
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Key Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial/material-bases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Material Bases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial/proof-search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proof Search
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial/cli-usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial/chapter3-walkthrough/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 3 Walkthrough
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorial/onto-tutorial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ontology Extension
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MaterialBase
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/reasoner/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NMMSReasoner
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/syntax/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Syntax
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/onto-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ontology Material Base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/onto-syntax/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ontology Syntax
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Theory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Theory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../nmms-calculus/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NMMS Calculus
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../onto-extension/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ontology Extension
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Querying and Entitlement
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Querying and Entitlement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem-is-x-true" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The Problem: "Is X True?"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-what-you-can-and-cannot-ask" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. What You Can and Cannot Ask
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. What You Can and Cannot Ask">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#whats-out" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's out
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#whats-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's in
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-three-layers-to-get-to-is-x-true" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Three Layers to Get to "Is X True?"
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Three Layers to Get to &#34;Is X True?&#34;">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#layer-1-the-nmms-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layer 1: The NMMS Engine
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#layer-2-the-commitment-store" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layer 2: The Commitment Store
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#layer-3-the-entitlement-tracker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layer 3: The Entitlement Tracker
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-the-dialogue-assembles-the-premises" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The Dialogue Assembles the Premises
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. The Dialogue Assembles the Premises">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-exact-match-brittleness-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The exact-match brittleness problem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-dialogue-layer-as-navigator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The dialogue layer as navigator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-example-medical-diagnosis-without-jointcommitment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Example: Medical Diagnosis Without jointCommitment
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-the-jointcommitment-question" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. The jointCommitment Question
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. The jointCommitment Question">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metatheoretic-properties-preserved" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metatheoretic properties preserved
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-inferentialist-concern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The inferentialist concern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#where-jointcommitment-belongs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where jointCommitment belongs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-pragmatic-case-uniform-defeasibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The pragmatic case: uniform defeasibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-the-export-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. The Export Path
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-problem-is-x-true" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The Problem: "Is X True?"
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-what-you-can-and-cannot-ask" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. What You Can and Cannot Ask
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. What You Can and Cannot Ask">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#whats-out" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's out
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#whats-in" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's in
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-three-layers-to-get-to-is-x-true" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Three Layers to Get to "Is X True?"
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Three Layers to Get to &#34;Is X True?&#34;">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#layer-1-the-nmms-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layer 1: The NMMS Engine
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#layer-2-the-commitment-store" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layer 2: The Commitment Store
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#layer-3-the-entitlement-tracker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layer 3: The Entitlement Tracker
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-the-dialogue-assembles-the-premises" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The Dialogue Assembles the Premises
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. The Dialogue Assembles the Premises">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-exact-match-brittleness-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The exact-match brittleness problem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-dialogue-layer-as-navigator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The dialogue layer as navigator
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-example-medical-diagnosis-without-jointcommitment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Example: Medical Diagnosis Without jointCommitment
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-the-jointcommitment-question" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. The jointCommitment Question
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. The jointCommitment Question">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The pattern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metatheoretic-properties-preserved" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metatheoretic properties preserved
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-inferentialist-concern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The inferentialist concern
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#where-jointcommitment-belongs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where jointCommitment belongs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-pragmatic-case-uniform-defeasibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The pragmatic case: uniform defeasibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-the-export-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. The Export Path
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="querying-entitlement-and-the-dialogue-layer">Querying, Entitlement, and the Dialogue Layer<a class="headerlink" href="#querying-entitlement-and-the-dialogue-layer" title="Permanent link">&para;</a></h1>
+<h2 id="1-the-problem-is-x-true">1. The Problem: "Is X True?"<a class="headerlink" href="#1-the-problem-is-x-true" title="Permanent link">&para;</a></h2>
+<p>A knowledge engineer coming from RDF/OWL expects to assert facts and query what's entailed. pyNMMS doesn't work that way. The engine maps <strong>inferential relations</strong> -- it answers "Does this commitment commit me to that?" not "Is X true?" Every query is a conditional: given <em>exactly</em> this, am I committed to that?</p>
+<p>This document traces the design reasoning from that observation through to an architecture that can answer "Is X true?" within an inferentialist framework.</p>
+<h2 id="2-what-you-can-and-cannot-ask">2. What You Can and Cannot Ask<a class="headerlink" href="#2-what-you-can-and-cannot-ask" title="Permanent link">&para;</a></h2>
+<h3 id="whats-out">What's out<a class="headerlink" href="#whats-out" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>"Is X true?"</strong> -- There are no atomic theorems. <code>=&gt; Mortal(socrates)</code> is not derivable. The consequent is atomic, no proof rule applies, and no axiom matches: Containment fails (empty intersection), no explicit base consequence has an empty antecedent, and no ontology schema generates empty-antecedent pairs.</p>
+</li>
+<li>
+<p><strong>"Given everything I know, what follows?"</strong> -- Putting all known commitments on the left side of a sequent defeats every inference except Containment. In NMMS, a maximally-informed antecedent is a maximally-defeated one. Exact match means any extra premise is a potential defeater.</p>
+</li>
+</ul>
+<h3 id="whats-in">What's in<a class="headerlink" href="#whats-in" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>"Does commitment A commit me to B?"</strong> -- Singleton queries against schemas: <code>{Man(socrates)} =&gt; {Mortal(socrates)}</code> is derivable via <code>subClassOf(Man, Mortal)</code>.</p>
+</li>
+<li>
+<p><strong>"Is this inferential relationship a theorem?"</strong> -- Via DDT, <code>{} =&gt; {Man(socrates) -&gt; Mortal(socrates)}</code> is derivable. The proof rule [R-&gt;] decomposes it to the singleton query, which matches the schema.</p>
+</li>
+<li>
+<p><strong>"Are A and B incompatible?"</strong> -- <code>{Alive(socrates), Dead(socrates)} =&gt; {}</code> is derivable via <code>disjointWith(Alive, Dead)</code>.</p>
+</li>
+</ul>
+<p>The system answers "what follows from what?" rather than "what is the case?"</p>
+<h2 id="3-three-layers-to-get-to-is-x-true">3. Three Layers to Get to "Is X True?"<a class="headerlink" href="#3-three-layers-to-get-to-is-x-true" title="Permanent link">&para;</a></h2>
+<p>To answer "Is X true?" in an inferentialist framework, you need three layers:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Question</th>
+<th>Mechanism</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>NMMS engine</strong></td>
+<td>Does this inferential relation hold?</td>
+<td>Backward proof search</td>
+<td>pyNMMS today</td>
+</tr>
+<tr>
+<td><strong>Commitment store</strong></td>
+<td>What are you committed to?</td>
+<td>Forward chaining over assertions</td>
+<td>Partially in pyNMMS (<code>CommitmentStore</code>)</td>
+</tr>
+<tr>
+<td><strong>Entitlement tracker</strong></td>
+<td>What are you entitled to?</td>
+<td>Commitments minus incompatibilities, challenges, retractions</td>
+<td>Elenchus (not yet built)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="layer-1-the-nmms-engine">Layer 1: The NMMS Engine<a class="headerlink" href="#layer-1-the-nmms-engine" title="Permanent link">&para;</a></h3>
+<p>A map of defeasible inferential relations. You query whether one commitment entails another. No accumulation of facts, no closed-world reasoning. This is pyNMMS today.</p>
+<h3 id="layer-2-the-commitment-store">Layer 2: The Commitment Store<a class="headerlink" href="#layer-2-the-commitment-store" title="Permanent link">&para;</a></h3>
+<p>Tracks what a respondent has explicitly asserted and forward-chains over schemas to compute what those assertions individually commit them to. For each explicit commitment, probe the schemas one at a time. The result is a set of <strong>consequential commitments</strong> -- things the respondent is committed to by virtue of what they've asserted.</p>
+<p>A design decision arises here: <strong>do you chase consequences of consequences?</strong> If <code>Man(socrates)</code> commits you to <code>Mortal(socrates)</code>, and <code>subClassOf(Mortal, Physical)</code> is registered, do you add <code>Physical(socrates)</code>? If yes, you've reintroduced a form of transitivity at the commitment-tracking layer -- not in the proof theory, but in the application. The engine still says <code>{Man(socrates)} =&gt; {Physical(socrates)}</code> is NOT DERIVABLE. But the commitment store says "you're committed to it, via two individual inferential moves." This is a pragmatic choice for the dialogue layer, not a change to the calculus.</p>
+<h3 id="layer-3-the-entitlement-tracker">Layer 3: The Entitlement Tracker<a class="headerlink" href="#layer-3-the-entitlement-tracker" title="Permanent link">&para;</a></h3>
+<p>Resolves incompatibilities, handles challenges and retractions, and determines which commitments the respondent can still defend. This is where the Socratic move lives: "You're committed to both X and Y, but those are incompatible. Which do you retract?"</p>
+<p><strong>"Is X true?"</strong> becomes <strong>"Am I entitled to X?"</strong> -- which unpacks to "Have I made commitments that commit me to X, and has nothing defeated that entitlement?"</p>
+<p>This is the inferentialist replacement for truth. There is no view from nowhere. There is just what you can defend given what you've asserted, what follows from it, and what challenges you've faced. Truth is a normative status you earn in the game, not a correspondence to how things are.</p>
+<h2 id="4-the-dialogue-assembles-the-premises">4. The Dialogue Assembles the Premises<a class="headerlink" href="#4-the-dialogue-assembles-the-premises" title="Permanent link">&para;</a></h2>
+<h3 id="the-exact-match-brittleness-problem">The exact-match brittleness problem<a class="headerlink" href="#the-exact-match-brittleness-problem" title="Permanent link">&para;</a></h3>
+<p>Multi-premise base axioms are already legal in pyNMMS:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pynmms<span class="w"> </span>tell<span class="w"> </span>-b<span class="w"> </span>base.json<span class="w"> </span><span class="s2">&quot;ChestPain(patient), ElevatedTroponin(patient) |~ MyocardialInfarction(patient)&quot;</span>
+</code></pre></div>
+<p>But exact match means this fires only when the antecedent is <em>exactly</em> <code>{ChestPain(patient), ElevatedTroponin(patient)}</code>. A real patient with twelve findings on the table will never match it.</p>
+<h3 id="the-dialogue-layer-as-navigator">The dialogue layer as navigator<a class="headerlink" href="#the-dialogue-layer-as-navigator" title="Permanent link">&para;</a></h3>
+<p>The solution is that the dialogue layer -- Elenchus -- knows what multi-premise axioms and schemas exist, examines the respondent's full commitment set, and selectively assembles the right subsets of premises to query against the engine:</p>
+<ol>
+<li>The doctor asserts twelve findings. Elenchus records them all.</li>
+<li>Elenchus knows the shapes of the multi-premise axioms in the base.</li>
+<li>For each axiom, Elenchus checks: are all the required premises in the commitment set?</li>
+<li>If yes, it queries the engine with <em>exactly</em> those premises -- no more, no less.</li>
+<li>Exact match succeeds. The conclusion is added to the commitment set.</li>
+<li>Incompatibilities are checked. Socratic pushback if needed.</li>
+</ol>
+<p>The engine stays pure -- exact match, no weakening, all metatheoretic properties preserved. The dialogue layer does the subsetting. The brittleness of exact match is not a problem -- it is a <strong>division of labor</strong>. The engine guarantees that each inferential move is individually sound and defeasible. The dialogue layer decides which moves to make given what the respondent has committed to.</p>
+<p><strong>The engine is the map. Elenchus is the navigator.</strong></p>
+<h2 id="5-example-medical-diagnosis-without-jointcommitment">5. Example: Medical Diagnosis Without <code>jointCommitment</code><a class="headerlink" href="#5-example-medical-diagnosis-without-jointcommitment" title="Permanent link">&para;</a></h2>
+<p>Using only the six schema types currently in pyNMMS:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>subClassOf(ChestPain, CardiacSymptom)
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>subClassOf(ElevatedTroponin, CardiacBiomarker)
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>subClassOf(PostprandialBurning, GISymptom)
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>subClassOf(MyocardialInfarction, CardiacCondition)
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>subClassOf(GERD, GICondition)
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>disjointWith(CardiacCondition, GICondition)
+</code></pre></div>
+<p><strong>Doctor:</strong> "The patient has chest pain."</p>
+<p>Assistant records <code>ChestPain(patient)</code>. Forward-chains: <code>subClassOf(ChestPain, CardiacSymptom)</code> fires, committed to <code>CardiacSymptom(patient)</code>. Reports: "Noted. That commits you to a cardiac symptom."</p>
+<p><strong>Doctor:</strong> "Troponin is elevated."</p>
+<p>Assistant records <code>ElevatedTroponin(patient)</code>. Forward-chains: <code>subClassOf(ElevatedTroponin, CardiacBiomarker)</code> fires, committed to <code>CardiacBiomarker(patient)</code>. Reports: "Noted. That commits you to a cardiac biomarker."</p>
+<p>The assistant <strong>cannot</strong> derive MI -- no schema combines two findings into a diagnosis. Each symptom individually commits you to a category, but the diagnostic synthesis doesn't happen automatically.</p>
+<p>The assistant does what it can: "You have a cardiac symptom and a cardiac biomarker. What's your diagnosis?"</p>
+<p><strong>Doctor:</strong> "Myocardial infarction."</p>
+<p>The doctor makes the diagnostic judgment. The assistant records <code>MyocardialInfarction(patient)</code> as an explicit commitment. Forward-chains: <code>subClassOf(MyocardialInfarction, CardiacCondition)</code> fires, committed to <code>CardiacCondition(patient)</code>.</p>
+<p><strong>Doctor:</strong> "But the patient also has burning after meals."</p>
+<p>Assistant records <code>PostprandialBurning(patient)</code>. Forward-chains: <code>subClassOf(PostprandialBurning, GISymptom)</code> fires, committed to <code>GISymptom(patient)</code>. Reports: "Noted. That commits you to a GI symptom. Does that change your diagnosis?"</p>
+<p><strong>Doctor:</strong> "Yes. It's GERD."</p>
+<p>Assistant records <code>GERD(patient)</code>. Forward-chains: <code>subClassOf(GERD, GICondition)</code> fires, committed to <code>GICondition(patient)</code>. Now <code>disjointWith(CardiacCondition, GICondition)</code> fires: <strong>incompatibility detected</strong>.</p>
+<p><strong>"You're committed to both a cardiac condition and a GI condition, but those are incompatible. Which do you retract?"</strong></p>
+<p><strong>Doctor:</strong> "Retract MI."</p>
+<p>Assistant retracts <code>MyocardialInfarction(patient)</code> and its consequential commitment <code>CardiacCondition(patient)</code>. Incompatibility resolved. The doctor is entitled to <code>GERD(patient)</code>.</p>
+<p>Without multi-premise schemas, the system classifies individual findings and detects incompatibilities, but <strong>the doctor does all the diagnostic synthesis</strong>. The assistant is a scorekeeping partner, not a diagnostic engine.</p>
+<h2 id="6-the-jointcommitment-question">6. The <code>jointCommitment</code> Question<a class="headerlink" href="#6-the-jointcommitment-question" title="Permanent link">&para;</a></h2>
+<h3 id="the-pattern">The pattern<a class="headerlink" href="#the-pattern" title="Permanent link">&para;</a></h3>
+<p>The natural extension for multi-premise inferential commitments:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>jointCommitment([C1, ..., Cn], D)
+</code></pre></div>
+<p><strong>Schema</strong>: For any individual x, <code>{C1(x), ..., Cn(x)} |~_B {D(x)}</code>.</p>
+<p><strong>Intended reading</strong>: Holding commitments C1 through Cn jointly carries a defeasible material inferential commitment to D.</p>
+<p>This is structurally a <strong>production rule</strong> -- a <code>defrule</code> in the ART/CLIPS lineage. The NMMS framing gives it exact-match defeasibility and composition with the proof-theoretic machinery, but the pattern is the same one production rule systems have used for decades.</p>
+<table>
+<thead>
+<tr>
+<th>Schema</th>
+<th>Antecedent</th>
+<th>Consequent</th>
+<th>Reading</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>subClassOf(C, D)</code></td>
+<td><code>{C(x)}</code></td>
+<td><code>{D(x)}</code></td>
+<td>single commitment entails</td>
+</tr>
+<tr>
+<td><code>disjointWith(C, D)</code></td>
+<td><code>{C(x), D(x)}</code></td>
+<td><code>{}</code></td>
+<td>joint commitments are incoherent</td>
+</tr>
+<tr>
+<td><code>jointCommitment([C1,...,Cn], D)</code></td>
+<td><code>{C1(x),...,Cn(x)}</code></td>
+<td><code>{D(x)}</code></td>
+<td>joint commitments entail</td>
+</tr>
+</tbody>
+</table>
+<h3 id="metatheoretic-properties-preserved">Metatheoretic properties preserved<a class="headerlink" href="#metatheoretic-properties-preserved" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Containment</strong>: Antecedent and consequent are disjoint (assuming D is not among the Ci), so Containment is silent. Preserved.</li>
+<li><strong>Lazy evaluation</strong>: Quantifies over individuals, no grounding needed.</li>
+<li><strong>Exact match</strong>: All Ci must be present, nothing extra -- still defeasible.</li>
+<li><strong>No new proof rules</strong>: Still just an axiom extension.</li>
+</ul>
+<h3 id="the-inferentialist-concern">The inferentialist concern<a class="headerlink" href="#the-inferentialist-concern" title="Permanent link">&para;</a></h3>
+<p>The existing six schemas have a clean reading as <strong>meaning-constitutive</strong> inferences -- they articulate what individual concepts and roles mean relative to each other. <code>subClassOf(Man, Mortal)</code> says something about what it is to be committed to someone being a Man. These define the <strong>ontological vocabulary</strong>.</p>
+<p><code>jointCommitment([ChestPain, ElevatedTroponin], MI)</code> is different. It doesn't say anything about what "chest pain" means or what "elevated troponin" means individually. It encodes <strong>empirical domain knowledge</strong> -- a medical fact about what combinations of observations indicate. That's substantive content, not conceptual structure.</p>
+<p>Brandom allows multi-premise material inferences -- they are throughout <em>Making It Explicit</em>. So <code>jointCommitment</code> doesn't violate inferentialism. But it shifts the character of the schemas from articulating what concepts mean to encoding what the world is like.</p>
+<p>Hlobil would note that the formalism already supports multi-premise base axioms -- nothing in the calculus restricts antecedent size. His concern would be pragmatic: exact match on a five-premise pattern is very brittle. A patient with twelve findings on the table will never match it directly. The dialogue layer must assemble the right subsets.</p>
+<h3 id="where-jointcommitment-belongs">Where <code>jointCommitment</code> belongs<a class="headerlink" href="#where-jointcommitment-belongs" title="Permanent link">&para;</a></h3>
+<p>The distinction suggests a separation:</p>
+<ul>
+<li>The six <strong>ontology schemas</strong> are the <strong>conceptual structure layer</strong> -- what concepts and roles mean relative to each other.</li>
+<li><strong><code>jointCommitment</code></strong> is the <strong>domain knowledge layer</strong> -- what combinations of commitments indicate.</li>
+</ul>
+<p>Both are material inferences. Both are defeasible. Both operate at the base level. But they serve different functions in the game of giving and asking for reasons. Being explicit about the difference matters even when the mechanism is shared.</p>
+<h3 id="the-pragmatic-case-uniform-defeasibility">The pragmatic case: uniform defeasibility<a class="headerlink" href="#the-pragmatic-case-uniform-defeasibility" title="Permanent link">&para;</a></h3>
+<p>In the Semantic Web stack, combining ontology axioms with domain rules means combining two formalisms with incompatible semantics. OWL is model-theoretic and monotonic; SWRL, SHACL rules, and Jena rules are procedural and forward-chaining. Bolting rules onto OWL can compromise decidability and produces a system where two semantic foundations interact unpredictably.</p>
+<p><code>jointCommitment</code> in NMMS avoids this entirely. It is a multi-premise base axiom pattern — the same kind of thing as <code>subClassOf</code> or <code>disjointWith</code>. It goes through the same <code>is_axiom()</code> check, the same exact-match defeasibility, the same proof search, the same metatheoretic guarantees (Containment preservation, Supraclassicality, Conservative Extension, Invertibility, Projection). No new engine, no new semantics, no interoperability headaches.</p>
+<p>The formalism already accommodates it. The base already accepts multi-premise axioms. The schemas already generate axiom patterns lazily. <code>jointCommitment</code> is the obvious generalization that the existing design already supports. The fact that it looks like a <code>defrule</code> is not a problem — it is a production rule that lives in a framework with native defeasibility and clean metatheory.</p>
+<p>The Semantic Web person bolts on SWRL and loses decidability. You add <code>jointCommitment</code> and lose nothing. That is the practical case for keeping domain rules inside the NMMS framework rather than exporting them to a separate rule layer.</p>
+<p>The schema registry serves double duty: it is the ontology for the knowledge engineer, and it is Elenchus's <strong>playbook</strong> -- the set of patterns the dialogue layer uses to assemble the right queries from the respondent's commitments.</p>
+<h2 id="7-the-export-path">7. The Export Path<a class="headerlink" href="#7-the-export-path" title="Permanent link">&para;</a></h2>
+<p>For deployment today, the cleanest architecture separates ontology engineering from query answering:</p>
+<p><strong>pyNMMS for ontology engineering</strong> -- The expert uses the defeasible, dialogue-driven framework to work out what concepts mean, how they relate, and what's incompatible with what. The Socratic pushback catches inconsistencies. The nonmonotonicity lets you explore provisional commitments and revise them. The result is a vetted ontological structure.</p>
+<p><strong>Export to RDF/OWL for deployment</strong> -- The six schema types map directly to standard vocabulary: <code>subClassOf</code>, <code>rdfs:range</code>, <code>rdfs:domain</code>, <code>rdfs:subPropertyOf</code>, <code>owl:disjointWith</code>, <code>owl:propertyDisjointWith</code>. Export the ontology, load it into a triple store, add the ABox, and query with SPARQL. The monotonic closed-world system handles "Is X true?"</p>
+<p><strong>Domain rules live in the deployment system</strong> -- Multi-premise diagnostic rules go into whatever rule engine sits on top of the triple store: SWRL, SHACL, Jena rules, or similar. They were never ontological structure to begin with.</p>
+<p>The trade-off: exporting to OWL flattens the richest parts of what pyNMMS captures. The monotonic system can't represent "this inference holds unless you learn more" or "these two commitments are incompatible but resolvable through dialogue." The export path is pragmatic -- it gets you a deployable system today using existing infrastructure.</p>
+<p>The fuller vision keeps the NMMS engine in the loop at runtime, with Elenchus doing the dialogue, the commitment store tracking assertions, the entitlement tracker resolving conflicts, and <code>jointCommitment</code> handling diagnostic synthesis. That system wouldn't need the classical export because it <em>is</em> the deployment platform.</p>
+<h2 id="8-summary">8. Summary<a class="headerlink" href="#8-summary" title="Permanent link">&para;</a></h2>
+<p>For a Semantic Web person who wants to know how they can ask "Is X true?":</p>
+<ol>
+<li><strong>pyNMMS doesn't answer "Is X true?"</strong> -- it answers "Does this inferential relation hold?"</li>
+<li><strong>To get to "Is X true?"</strong> you need three layers: the engine (inferential map), the commitment store (forward chaining), and the entitlement tracker (incompatibility resolution and Socratic dialogue).</li>
+<li><strong>"Is X true?" becomes "Am I entitled to X?"</strong> -- a normative status earned in the game of giving and asking for reasons, not a correspondence to how things are.</li>
+<li><strong>The dialogue layer assembles the premises.</strong> Exact match is not brittleness -- it's a division of labor between the engine (which guarantees soundness) and the navigator (which selects the right inferential moves).</li>
+<li><strong><code>jointCommitment</code> stays inside NMMS.</strong> It is a production rule (a <code>defrule</code> in the ART/CLIPS sense), but one that shares the same defeasibility semantics and metatheoretic guarantees as the ontology schemas. The Semantic Web alternative — bolting a rule language onto OWL — means two incompatible semantic foundations. NMMS gives you uniform defeasibility across ontological structure and domain rules at no cost.</li>
+<li><strong>For deployment today</strong>, export the ontology to RDF/OWL and use classical infrastructure. For the full inferentialist vision, build Elenchus.</li>
+</ol>
+<h2 id="9-references">9. References<a class="headerlink" href="#9-references" title="Permanent link">&para;</a></h2>
+<ul>
+<li>
+<p>Brandom, R. B. (1994). <em>Making It Explicit: Reasoning, Representing, and Discursive Commitment</em>. Harvard University Press.</p>
+</li>
+<li>
+<p>Hlobil, U. &amp; Brandom, R. B. (2025). <em>Reasons for Logic, Logic for Reasons</em>. Chapter 3: "Introducing Logical Vocabulary."</p>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.sections", "navigation.expand"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
